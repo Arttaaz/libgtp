@@ -120,10 +120,61 @@ impl Args {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, Copy)]
+pub enum CommandName {
+    ProtocolVersion,
+    Name,
+    Version,
+    ListCommands,
+    Quit,
+    ClearBoard,
+    Undo,
+    FinalScore,
+    Showboard,
+    Unknown,
+}
+
+impl From<String> for CommandName {
+    // type Err = crate::model::ParseError;
+
+    fn from(str: String) -> Self {
+        match str.as_str() {
+            "protocol_version" => Self::ProtocolVersion,
+            "name" => Self::Name,
+            "version" => Self::Version,
+            "list_commands" => Self::ListCommands,
+            "quit" => Self::Quit,
+            "clear_board" => Self::ClearBoard,
+            "undo" => Self::Undo,
+            "final_score" => Self::FinalScore,
+            "showboard" => Self::Showboard,
+            _ => Self::Unknown,
+        }
+    }
+}
+
+impl Display for CommandName {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        match self {
+            Self::ProtocolVersion => write!(f, "protocol_version"),
+            Self::Name => write!(f, "name"),
+            Self::Version => write!(f, "version"),
+            Self::ListCommands => write!(f, "list_commands"),
+            Self::Quit => write!(f, "quit"),
+            Self::ClearBoard => write!(f, "clear_board"),
+            Self::Undo => write!(f, "undo"),
+            Self::FinalScore => write!(f, "final_score"),
+            Self::Showboard => write!(f, "showboard"),
+            Self::Unknown => write!(f, "unknown"),
+        }
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct Command {
     id:     Option<u32>,
-    name:   String,
+    name:   CommandName,
     args:   Args,
 }
 
@@ -163,7 +214,7 @@ impl FromStr for Command {
             "showboard"
                 => Ok(Self {
                         id,
-                        name,
+                        name: name.into(),
                         args: Args::None
                     }),
             _ => Err(crate::model::ParseError::WrongCommandName)
@@ -178,7 +229,7 @@ impl From<Command> for String {
 }
 
 impl Command {
-    pub fn new(name: String, args: Args) -> Self {
+    pub fn new(name: CommandName, args: Args) -> Self {
         Self {
             id: None,
             name,
@@ -186,7 +237,7 @@ impl Command {
         }
     }
 
-    pub fn with_id(id: u32, name: String, args: Args) -> Self {
+    pub fn with_id(id: u32, name: CommandName, args: Args) -> Self {
         Self {
             id: Some(id),
             name,
@@ -202,12 +253,8 @@ impl Command {
         &mut self.id
     }
 
-    pub fn name(&self) -> &String {
-        &self.name
-    }
-
-    pub fn name_mut(&mut self) -> &mut String {
-        &mut self.name
+    pub fn name(&self) -> CommandName {
+        self.name
     }
 
     pub fn args(&self) -> &Args {
