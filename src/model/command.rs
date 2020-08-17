@@ -131,6 +131,19 @@ pub enum CommandName {
     Undo,
     FinalScore,
     Showboard,
+    KnownCommand,
+    Boardsize,
+    Komi,
+    FixedHandicap,
+    PlaceFreeHandicap,
+    SetFreeHandicap,
+    Play,
+    Genmove,
+    TimeSettings,
+    TimeLeft,
+    FinalStatusList,
+    Loadsgf,
+    RegGenmove,
     Unknown,
 }
 
@@ -148,6 +161,19 @@ impl From<String> for CommandName {
             "undo" => Self::Undo,
             "final_score" => Self::FinalScore,
             "showboard" => Self::Showboard,
+            "known_command" => Self::KnownCommand,
+            "boardsize" => Self::Boardsize,
+            "komi" => Self::Komi,
+            "fixed_handicap" => Self::FixedHandicap,
+            "place_free_handicap" => Self::PlaceFreeHandicap,
+            "set_free_handicap" => Self::SetFreeHandicap,
+            "play" => Self::Play,
+            "genmove" => Self::Genmove,
+            "time_settings" => Self::TimeSettings,
+            "time_left" => Self::TimeLeft,
+            "final_status_list" => Self::FinalStatusList,
+            "loadsgf" => Self::Loadsgf,
+            "reg_genmove" => Self::RegGenmove,
             _ => Self::Unknown,
         }
     }
@@ -165,6 +191,19 @@ impl Display for CommandName {
             Self::Undo => write!(f, "undo"),
             Self::FinalScore => write!(f, "final_score"),
             Self::Showboard => write!(f, "showboard"),
+            Self::KnownCommand => write!(f, "known_command"),
+            Self::Boardsize => write!(f, "boardsize"),
+            Self::Komi => write!(f, "komi"),
+            Self::FixedHandicap => write!(f, "fixed_handicap"),
+            Self::PlaceFreeHandicap => write!(f, "place_free_handicap"),
+            Self::SetFreeHandicap => write!(f, "set_free_handicap"),
+            Self::Play => write!(f, "play"),
+            Self::Genmove => write!(f, "genmove"),
+            Self::TimeSettings => write!(f, "time_settings"),
+            Self::TimeLeft => write!(f, "time_left"),
+            Self::FinalStatusList => write!(f, "final_status_list"),
+            Self::Loadsgf => write!(f, "loadsgf"),
+            Self::RegGenmove => write!(f, "reg_genmove"),
             Self::Unknown => write!(f, "unknown"),
         }
     }
@@ -185,6 +224,7 @@ impl Display for Command {
         }
         write!(f, "{}", self.name)?;
         write!(f, " {}", self.args)?;
+        write!(f, "\n")?;
         Ok(())
     }
 }
@@ -216,6 +256,49 @@ impl FromStr for Command {
                         id,
                         name: name.into(),
                         args: Args::None
+                    }),
+            "known_command" |
+            "final_status_list"
+                => Ok(Self {
+                        id,
+                        name: name.into(),
+                        args: Args::string(args),
+                    }),
+            "boardsize" |
+            "fixed_handicap" |
+            "place_free_handicap"
+                => Ok(Self {
+                        id,
+                        name: name.into(),
+                        args: Args::int(args.parse()?),
+                    }),
+            "komi"
+                => Ok(Self{
+                        id,
+                        name: name.into(),
+                        args: Args::float(args.parse()?),
+                    }),
+            "set_free_handicap"
+                => Ok(Self{
+                        id,
+                        name: name.into(),
+                        args: Args::list_vertex(args.as_str().parse()?),
+                    }),
+            "play" |
+            "genmove" |
+            "reg_genmove"
+                => Ok(Self {
+                        id,
+                        name: name.into(),
+                        args: Args::entity(args.as_str().parse()?)
+                    }),
+            "time_settings" |
+            "time_left" |
+            "loadsgf"
+                => Ok(Self {
+                        id,
+                        name: name.into(),
+                        args: Args::collection(args.as_str().parse()?),
                     }),
             _ => Err(crate::model::ParseError::WrongCommandName)
         }
