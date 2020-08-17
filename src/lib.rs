@@ -24,13 +24,9 @@ fn test_collection_macro() {
 
 #[test]
 fn test_command() {
-    use alloc::vec::Vec;
     use alloc::format;
-    use core::str::FromStr;
     use alloc::string::String;
     use crate::model::command::Command;
-    use crate::model::command::CommandName;
-    use crate::model::command::Args;
 
     let command: Command = "name".parse().unwrap();
     assert_eq!(format!("{}", command), String::from("name \n"));
