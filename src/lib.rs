@@ -24,13 +24,12 @@ fn test_collection_macro() {
 
 #[test]
 fn test_command() {
-    use alloc::format;
     use alloc::string::String;
-    use crate::model::command::Command;
+    use crate::model::Command;
 
     let command: Command = "name".parse().unwrap();
-    assert_eq!(format!("{}", command), String::from("name \n"));
-
+    assert_eq!(command.to_string(), String::from("name \n"));
+    
     let command_id: Command = "0 list_commands \n".parse().unwrap();
-    assert_eq!(format!("{}", command_id), String::from("0 list_commands \n"));
+    assert_eq!(command_id.to_string(), String::from("0 list_commands \n"));
 }

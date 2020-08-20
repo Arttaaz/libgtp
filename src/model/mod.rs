@@ -1,9 +1,11 @@
-pub mod command;
+mod command;
 pub mod types;
 use core::str::FromStr;
 use core::fmt::Debug;
 use core::fmt::Display;
 pub use types::*;
+
+pub use command::*;
 
 #[derive(Debug)]
 pub enum ParseError {

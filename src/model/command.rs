@@ -305,9 +305,15 @@ impl FromStr for Command {
     }
 }
 
-impl From<Command> for String {
-    fn from(command: Command) -> Self {
+impl From<&Command> for String {
+    fn from(command: &Command) -> Self {
         format!("{}", command)
+    }
+}
+
+impl Into<String> for Command {
+    fn into(self) -> String {
+        self.to_string()
     }
 }
 
@@ -346,6 +352,10 @@ impl Command {
 
     pub fn args_mut(&mut self) -> &mut Args {
         &mut self.args
+    }
+
+    pub fn to_string(&self) -> String {
+        String::from(self)
     }
 
 }
