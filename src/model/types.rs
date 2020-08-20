@@ -3,6 +3,7 @@ use alloc::borrow::ToOwned;
 use alloc::fmt::Display;
 use alloc::format;
 use alloc::string::String;
+use alloc::string::ToString;
 use alloc::vec::Vec;
 use core::iter::FromIterator;
 use core::ops::IndexMut;
@@ -459,7 +460,13 @@ impl<T: Entity> FromStr for List<T> {
     type Err = ParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
+        let check_line_return: Vec<&str> = str.split('\n').collect();
+        if check_line_return.len() > 2 {
+            return Err(Self::Err::WrongArgs);
+        }
+
         let elems : Vec<T> = str.to_uppercase().split_ascii_whitespace()
+            .take_while(|e| e.clone() != "".to_string())
             .map(|e| if let Ok(elem) = e.parse::<T>() {
                 elem
             } else {

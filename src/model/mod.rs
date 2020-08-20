@@ -1,4 +1,6 @@
 mod command;
+mod response;
+mod error;
 pub mod types;
 use core::str::FromStr;
 use core::fmt::Debug;
@@ -15,6 +17,7 @@ pub enum ParseError {
     WrongCoordinates,
     WrongSimpleEntity,
     WrongArgs,
+    WrongBool,
 }
 
 impl From<core::num::ParseIntError> for ParseError {

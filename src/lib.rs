@@ -26,6 +26,7 @@ fn test_collection_macro() {
 fn test_command() {
     use alloc::string::String;
     use crate::model::Command;
+    use alloc::string::ToString;
 
     let command: Command = "name".parse().unwrap();
     assert_eq!(command.to_string(), String::from("name \n"));

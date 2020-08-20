@@ -22,7 +22,6 @@ pub enum Args {
     Float(f32),
     Int(u32),
     Entity(SimpleEntity),
-    None,
 }
 
 impl Display for Args {
@@ -35,7 +34,6 @@ impl Display for Args {
             Self::Float(float) => write!(f, "{}", float),
             Self::Int(i) => write!(f, "{}", i),
             Self::Entity(e) => write!(f, "{}", e),
-            _ => Ok(()),
         }
     }
 }
@@ -147,9 +145,39 @@ pub enum CommandName {
     Unknown,
 }
 
-impl From<String> for CommandName {
-    // type Err = crate::model::ParseError;
+impl FromStr for CommandName {
+    type Err = crate::model::ParseError;
 
+    fn from_str(str: &str) -> Result<Self, Self::Err> {
+        match str {
+            "protocol_version" => Ok(Self::ProtocolVersion),
+            "name" => Ok(Self::Name),
+            "version" => Ok(Self::Version),
+            "list_commands" => Ok(Self::ListCommands),
+            "quit" => Ok(Self::Quit),
+            "clear_board" => Ok(Self::ClearBoard),
+            "undo" => Ok(Self::Undo),
+            "final_score" => Ok(Self::FinalScore),
+            "showboard" => Ok(Self::Showboard),
+            "known_command" => Ok(Self::KnownCommand),
+            "boardsize" => Ok(Self::Boardsize),
+            "komi" => Ok(Self::Komi),
+            "fixed_handicap" => Ok(Self::FixedHandicap),
+            "place_free_handicap" => Ok(Self::PlaceFreeHandicap),
+            "set_free_handicap" => Ok(Self::SetFreeHandicap),
+            "play" => Ok(Self::Play),
+            "genmove" => Ok(Self::Genmove),
+            "time_settings" => Ok(Self::TimeSettings),
+            "time_left" => Ok(Self::TimeLeft),
+            "final_status_list" => Ok(Self::FinalStatusList),
+            "loadsgf" => Ok(Self::Loadsgf),
+            "reg_genmove" => Ok(Self::RegGenmove),
+            _ => Err(Self::Err::WrongAlternative),
+        }
+    }
+}
+
+impl From<String> for CommandName {
     fn from(str: String) -> Self {
         match str.as_str() {
             "protocol_version" => Self::ProtocolVersion,
@@ -214,7 +242,7 @@ impl Display for CommandName {
 pub struct Command {
     id:     Option<u32>,
     name:   CommandName,
-    args:   Args,
+    args:   Option<Args>,
 }
 
 impl Display for Command {
@@ -223,7 +251,9 @@ impl Display for Command {
             write!(f, "{} ", self.id.unwrap())?;
         }
         write!(f, "{}", self.name)?;
-        write!(f, " {}", self.args)?;
+        if self.args.is_some() {
+            write!(f, " {}", self.args.clone().unwrap())?;
+        }
         write!(f, "\n")?;
         Ok(())
     }
@@ -255,14 +285,14 @@ impl FromStr for Command {
                 => Ok(Self {
                         id,
                         name: name.into(),
-                        args: Args::None
+                        args: None
                     }),
             "known_command" |
             "final_status_list"
                 => Ok(Self {
                         id,
                         name: name.into(),
-                        args: Args::string(args),
+                        args: Some(Args::string(args)),
                     }),
             "boardsize" |
             "fixed_handicap" |
@@ -270,19 +300,19 @@ impl FromStr for Command {
                 => Ok(Self {
                         id,
                         name: name.into(),
-                        args: Args::int(args.parse()?),
+                        args: Some(Args::int(args.parse()?)),
                     }),
             "komi"
                 => Ok(Self{
                         id,
                         name: name.into(),
-                        args: Args::float(args.parse()?),
+                        args: Some(Args::float(args.parse()?)),
                     }),
             "set_free_handicap"
                 => Ok(Self{
                         id,
                         name: name.into(),
-                        args: Args::list_vertex(args.as_str().parse()?),
+                        args: Some(Args::list_vertex(args.as_str().parse()?)),
                     }),
             "play" |
             "genmove" |
@@ -290,7 +320,7 @@ impl FromStr for Command {
                 => Ok(Self {
                         id,
                         name: name.into(),
-                        args: Args::entity(args.as_str().parse()?)
+                        args: Some(Args::entity(args.as_str().parse()?))
                     }),
             "time_settings" |
             "time_left" |
@@ -298,7 +328,7 @@ impl FromStr for Command {
                 => Ok(Self {
                         id,
                         name: name.into(),
-                        args: Args::collection(args.as_str().parse()?),
+                        args: Some(Args::collection(args.as_str().parse()?)),
                     }),
             _ => Err(crate::model::ParseError::WrongCommandName)
         }
@@ -318,7 +348,7 @@ impl Into<String> for Command {
 }
 
 impl Command {
-    pub fn new(name: CommandName, args: Args) -> Self {
+    pub fn new(name: CommandName, args: Option<Args>) -> Self {
         Self {
             id: None,
             name,
@@ -326,7 +356,7 @@ impl Command {
         }
     }
 
-    pub fn with_id(id: u32, name: CommandName, args: Args) -> Self {
+    pub fn with_id(id: u32, name: CommandName, args: Option<Args>) -> Self {
         Self {
             id: Some(id),
             name,
@@ -346,16 +376,12 @@ impl Command {
         self.name
     }
 
-    pub fn args(&self) -> &Args {
+    pub fn args(&self) -> &Option<Args> {
         &self.args
     }
 
-    pub fn args_mut(&mut self) -> &mut Args {
+    pub fn args_mut(&mut self) -> &mut Option<Args> {
         &mut self.args
-    }
-
-    pub fn to_string(&self) -> String {
-        String::from(self)
     }
 
 }
