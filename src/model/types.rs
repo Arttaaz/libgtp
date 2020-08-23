@@ -1,6 +1,7 @@
 use crate::model::Entity;
 use alloc::borrow::ToOwned;
 use alloc::fmt::Display;
+use core::fmt;
 use alloc::format;
 use alloc::string::String;
 use alloc::string::ToString;
@@ -10,6 +11,8 @@ use core::ops::IndexMut;
 use core::ops::Index;
 use core::str::FromStr;
 use super::ParseError;
+
+use log::debug;
 
 #[cfg(feature = "serde")]
 use serde::{ Deserialize, Serialize };
@@ -44,6 +47,70 @@ macro_rules! list {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, Copy)]
+pub enum Boolean {
+    True,
+    False,
+}
+
+impl Display for Boolean {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::True => write!(f, "true"),
+            Self::False => write!(f, "false"),
+        }
+    }
+}
+
+impl FromStr for Boolean {
+    type Err = crate::model::ParseError;
+
+    fn from_str(str: &str) -> Result<Self, Self::Err> {
+        match str.to_uppercase().as_str() {
+            "TRUE" => Ok(Self::True),
+            "FALSE" => Ok(Self::False),
+            _ => Err(Self::Err::WrongBool),
+        }
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
+pub struct Score(String);
+
+impl FromStr for Score {
+    type Err = crate::model::ParseError;
+
+    fn from_str(str: &str) -> Result<Self, Self::Err> {
+        if str.is_empty() {
+            return Err(Self::Err::EmptyString);
+        } else if str == "0" {
+            Ok(Self(str.to_string()))
+        } else {
+            let split: Vec<&str> = str.split('+').collect();
+            if split.len() > 2 {
+                return Err(Self::Err::WrongScore);
+            }
+
+            match split[0] {
+                "W" | "B" => (),
+                _ => {return Err(Self::Err::WrongColor);}
+            }
+
+            split[1].parse::<f32>()?;
+
+            Ok(Self(str.to_string()))
+        }
+    }
+}
+
+impl Display for Score {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Vertex {
     Coord(u8, u8),
@@ -57,6 +124,9 @@ impl FromStr for Vertex {
     type Err = ParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
+        if str.is_empty() {
+            return Err(Self::Err::EmptyString);
+        }
         let str = str.to_uppercase();
         if str == "PASS" {
             return Ok(Self::Pass)
@@ -149,6 +219,9 @@ impl FromStr for Color {
     type Err = ParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
+        if str.is_empty() {
+            return Err(Self::Err::EmptyString);
+        }
         let str = str.to_uppercase();
         match &*str {
             "B" | "BLACK" => Ok(Self::Black),
@@ -195,9 +268,11 @@ impl FromStr for Move {
     type Err = ParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
+        if str.is_empty() {
+            return Err(ParseError::EmptyString);
+        }
         let str = str.to_uppercase();
         let mut str = str.split_ascii_whitespace();
-
         Ok(Move {
             color: str.next().unwrap().parse()?,
             vertex: str.next().unwrap().parse()?,
@@ -241,7 +316,7 @@ impl alloc::fmt::Display for SimpleEntity {
     }
 }
 
-impl alloc::str::FromStr for SimpleEntity {
+impl FromStr for SimpleEntity {
     type Err = ParseError;
 
     fn from_str(str: &str) -> Result<SimpleEntity, Self::Err> {

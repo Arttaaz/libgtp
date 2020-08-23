@@ -6,64 +6,9 @@ use core::fmt::Display;
 use core::fmt;
 use core::str::FromStr;
 use alloc::vec::Vec;
+use log::debug;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, Clone, Copy)]
-enum Boolean {
-    True,
-    False,
-}
-
-impl Display for Boolean {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::True => write!(f, "true"),
-            Self::False => write!(f, "false"),
-        }
-    }
-}
-
-impl FromStr for Boolean {
-    type Err = crate::model::ParseError;
-
-    fn from_str(str: &str) -> Result<Self, Self::Err> {
-        match str.to_uppercase().as_str() {
-            "TRUE" => Ok(Self::True),
-            "FALSE" => Ok(Self::False),
-            _ => Err(Self::Err::WrongBool),
-        }
-    }
-}
-
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, Clone)]
-struct Score(String);
-
-impl FromStr for Score {
-    type Err = crate::model::ParseError;
-
-    fn from_str(str: &str) -> Result<Self, Self::Err> {
-        if str == "0" {
-            Ok(Self(str.to_string()))
-        } else {
-            let split: Vec<&str> = str.split('+').collect();
-            if split.len() > 2 {
-                return Err(Self::Err::WrongArgs);
-            }
-
-            match split[0] {
-                "W" | "B" => (),
-                _ => {return Err(Self::Err::WrongColor);}
-            }
-
-            split[1].parse::<f32>()?;
-
-            Ok(Self(str.to_string()))
-        }
-    }
-}
 
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -85,17 +30,11 @@ impl Display for ResponseData {
             Self::Integer(i) => write!(f, "{}", i),
             Self::String(s) => write!(f, "{}", s),
             Self::Bool(b) => write!(f, "{}", b),
-            Self::MultiLine(s) => {
-                s.into_iter().for_each(|s| writeln!(f, "{}", s));
-                Ok(())
-            },
+            Self::MultiLine(s) => s.into_iter().try_for_each(|s| writeln!(f, "{}", s)),
             Self::ListVertex(v) => write!(f, "{}", v),
             Self::Move(m) => write!(f, "{}", m),
-            Self::Score(s) => write!(f, "{}", s.0),
-            Self::MultiLineList(l) => {
-                l.into_iter().for_each(|v| writeln!(f, "{}", v));
-                Ok(())
-            },
+            Self::Score(s) => write!(f, "{}", s),
+            Self::MultiLineList(l) => l.into_iter().try_for_each(|v| writeln!(f, "{}", v)),
         }
     }
 }
@@ -104,6 +43,7 @@ impl FromStr for ResponseData {
     type Err = crate::model::ParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
+        debug!("parsing from: {}", str);
         if let Ok(i) = str.parse::<u32>() {
             return Ok(Self::Integer(i));
         } else if let Ok(b) = str.parse::<Boolean>() {
@@ -117,7 +57,10 @@ impl FromStr for ResponseData {
         }
 
         let mut matches: Vec<&str> = str.split('\n').collect();
+        debug!("{:?}", &matches);
         if matches.len() > 1 {
+            matches.pop();
+            matches.pop();
             if let Ok(_) = matches[0].to_string().parse::<CommandName>() {
                 return Ok(Self::MultiLine(matches.into_iter().map(|x| x.to_string().parse().unwrap()).collect()));
             }
@@ -125,14 +68,14 @@ impl FromStr for ResponseData {
             let lines: Vec<Result<List<Vertex>, Self::Err>> = matches.into_iter().map(|x| x.parse::<List<Vertex>>()).collect();
             let mut multilines = Vec::new();
             for line in lines {
-                if let Err(e) = line {
+                if let Err(_) = line {
                     return Ok(Self::String(str.to_string()));
                 }
                 multilines.push(line?);
             }
             Ok(Self::MultiLineList(multilines))
         } else {
-            Err(Self::Err::WrongAlternative)
+            Err(Self::Err::WrongResponseData)
         }
     }
 }
@@ -147,14 +90,14 @@ pub struct Response {
 
 impl Display for Response {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "=");
+        write!(f, "=")?;
         if self.id.is_some() {
            write!(f, "{}", self.id.unwrap())?; 
         }
         if self.data.is_some() {
-            write!(f, "{}", self.data.clone().unwrap());
+            write!(f, " {}", self.data.clone().unwrap())?;
             if let Some(ResponseData::MultiLine(_)) = self.data {
-                write!(f, "\n")    
+                write!(f, "\n")
             } else if let Some(ResponseData::MultiLineList(_)) = self.data {
                 write!(f, "\n")
             } else {
@@ -167,8 +110,52 @@ impl Display for Response {
 }
 
 
+impl FromStr for Response {
+    type Err = crate::model::ParseError;
+
+    fn from_str(str: &str) -> Result<Self, Self::Err> {
+        if str.get(0..1) != Some("=") {
+            return Err(Self::Err::WrongResponseFormat);
+        }
+        let str = str.split_at(1);
+        let str = str.1;
+        if str.is_empty() {
+            return Ok(Self {
+                id: None,
+                data: None,
+            });
+        }
+
+        let mut split = str.splitn(2, " ");    
+        let mut id = None;
+        if let Ok(has_id) = split.next().unwrap().trim_end().parse::<u32>() {
+            id = Some(has_id); 
+        }
+
+        match split.next() {
+            Some(data) => {
+                
+                let data = match ResponseData::from_str(data) {
+                    Ok(d) => Some(d),
+                    Err(e) => return Err(e),
+                };
+
+                Ok(Self {
+                    id,
+                    data,
+                })
+            },
+            None => return Ok(Self {
+                id,
+                data: None,
+            }),
+        }
+    }
+
+}
+
 impl Response {
-    pub fn move(mov: Move) -> Self {
+    pub fn mov(mov: Move) -> Self { //TODO: find a better name as move is a rust keyword
         Self {
             id: None,
             data: Some(ResponseData::Move(mov)),
@@ -209,7 +196,6 @@ impl Response {
             data: Some(ResponseData::Integer(int)),
         }
     }
-
     
     pub fn name(name: String) -> Self {
         Self {
@@ -231,6 +217,14 @@ impl Response {
 
     pub fn version_with_id(id: u32, version: String) -> Self {
         Self::name_with_id(id, version)
+    }
+
+    pub fn showboard<P>(f: P) -> Self
+    where P: Fn() -> String {
+        Self {
+            id: None,
+            data: Some(ResponseData::String(f())),
+        }
     }
 
     pub fn bool(boolean: Boolean) -> Self {

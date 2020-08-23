@@ -8,6 +8,7 @@ use core::fmt::Display;
 pub use types::*;
 
 pub use command::*;
+pub use response::*;
 
 #[derive(Debug)]
 pub enum ParseError {
@@ -18,6 +19,10 @@ pub enum ParseError {
     WrongSimpleEntity,
     WrongArgs,
     WrongBool,
+    WrongResponseData,
+    WrongResponseFormat,
+    WrongScore,
+    EmptyString,
 }
 
 impl From<core::num::ParseIntError> for ParseError {
