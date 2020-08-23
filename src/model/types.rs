@@ -12,7 +12,7 @@ use core::ops::Index;
 use core::str::FromStr;
 use super::ParseError;
 
-use log::debug;
+//use log::debug;
 
 #[cfg(feature = "serde")]
 use serde::{ Deserialize, Serialize };
@@ -27,7 +27,7 @@ macro_rules! collection {
             $(
                 v.push($elem);
             )*
-            crate::model::types::Collection::from_vec(v)
+            crate::model::Collection::from_vec(v)
         }
     };
 }

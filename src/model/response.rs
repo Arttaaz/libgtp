@@ -13,15 +13,15 @@ use serde::{Deserialize, Serialize};
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
-enum ResponseData {
+pub enum ResponseData {
     Integer(u32),
     String(String), // used only for name, version and showboard commands.
     Bool(Boolean),
-    MultiLine(Vec<CommandName>),
+    CommandNames(Vec<CommandName>),
     ListVertex(List<Vertex>),
     Move(Move),
     Score(Score),
-    MultiLineList(Vec<List<Vertex>>),
+    VertexLists(Vec<List<Vertex>>),
 }
 
 impl Display for ResponseData {
@@ -30,11 +30,11 @@ impl Display for ResponseData {
             Self::Integer(i) => write!(f, "{}", i),
             Self::String(s) => write!(f, "{}", s),
             Self::Bool(b) => write!(f, "{}", b),
-            Self::MultiLine(s) => s.into_iter().try_for_each(|s| writeln!(f, "{}", s)),
+            Self::CommandNames(s) => s.into_iter().try_for_each(|s| writeln!(f, "{}", s)),
             Self::ListVertex(v) => write!(f, "{}", v),
             Self::Move(m) => write!(f, "{}", m),
             Self::Score(s) => write!(f, "{}", s),
-            Self::MultiLineList(l) => l.into_iter().try_for_each(|v| writeln!(f, "{}", v)),
+            Self::VertexLists(l) => l.into_iter().try_for_each(|v| writeln!(f, "{}", v)),
         }
     }
 }
@@ -62,7 +62,7 @@ impl FromStr for ResponseData {
             matches.pop();
             matches.pop();
             if let Ok(_) = matches[0].to_string().parse::<CommandName>() {
-                return Ok(Self::MultiLine(matches.into_iter().map(|x| x.to_string().parse().unwrap()).collect()));
+                return Ok(Self::CommandNames(matches.into_iter().map(|x| x.to_string().parse().unwrap()).collect()));
             }
 
             let lines: Vec<Result<List<Vertex>, Self::Err>> = matches.into_iter().map(|x| x.parse::<List<Vertex>>()).collect();
@@ -73,9 +73,179 @@ impl FromStr for ResponseData {
                 }
                 multilines.push(line?);
             }
-            Ok(Self::MultiLineList(multilines))
+            Ok(Self::VertexLists(multilines))
         } else {
             Err(Self::Err::WrongResponseData)
+        }
+    }
+}
+
+impl ResponseData {
+    pub fn to_int(self) -> Result<u32, Self> {
+        match self {
+            Self::Integer(i) => Ok(i),
+            _ => Err(self),
+        }
+    }
+
+    pub fn as_int(&self) -> Option<&u32> {
+        match self {
+            Self::Integer(i) => Some(i),
+            _ => None,
+        }
+    }
+
+    pub fn is_int(&self) -> bool {
+        match self {
+            Self::Integer(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn to_name(self) -> Result<String, Self> {
+        match self {
+            Self::String(s) => Ok(s),
+            _ => Err(self),
+        }
+    }
+
+    pub fn as_name(&self) -> Option<&String> {
+        match self {
+            Self::String(s) => Some(s),
+            _ => None,
+        }
+    }
+
+    pub fn is_name(&self) -> bool {
+        match self {
+            Self::String(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn to_bool(self) -> Result<Boolean, Self> {
+        match self {
+            Self::Bool(b) => Ok(b),
+            _ => Err(self),
+        }
+    }
+
+    pub fn as_bool(&self) -> Option<&Boolean> {
+        match self {
+            Self::Bool(b) => Some(b),
+            _ => None,
+        }
+    }
+
+    pub fn is_bool(&self) -> bool {
+        match self {
+            Self::Bool(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn to_command_names(self) -> Result<Vec<CommandName>, Self> {
+        match self {
+            Self::CommandNames(c) => Ok(c),
+            _ => Err(self),
+        }
+    }
+
+    pub fn as_command_names(&self) -> Option<&Vec<CommandName>> {
+        match self {
+            Self::CommandNames(c) => Some(c),
+            _ => None,
+        }
+    }
+
+    pub fn is_command_names(&self) -> bool {
+        match self {
+            Self::CommandNames(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn to_list_vertex(self) -> Result<List<Vertex>, Self> {
+        match self {
+            Self::ListVertex(l) => Ok(l),
+            _ => Err(self),
+        }
+    }
+
+    pub fn as_list_vertex(&self) -> Option<&List<Vertex>> {
+        match self {
+            Self::ListVertex(l) => Some(l),
+            _ => None,
+        }
+    }
+
+    pub fn is_list_vertex(&self) -> bool {
+        match self {
+            Self::ListVertex(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn to_move(self) -> Result<Move, Self> {
+        match self {
+            Self::Move(m) => Ok(m),
+            _ => Err(self),
+        }
+    }
+
+    pub fn as_move(&self) -> Option<&Move> {
+        match self {
+            Self::Move(m) => Some(m),
+            _ => None,
+        }
+    }
+
+    pub fn is_move(&self) -> bool {
+        match self {
+            Self::Move(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn to_score(self) -> Result<Score, Self> {
+        match self {
+            Self::Score(s) => Ok(s),
+            _ => Err(self),
+        }
+    }
+
+    pub fn as_score(&self) -> Option<&Score> {
+        match self {
+            Self::Score(s) => Some(s),
+            _ => None,
+        }
+    }
+
+    pub fn is_score(&self) -> bool {
+        match self {
+            Self::Score(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn to_vertex_lists(self) -> Result<Vec<List<Vertex>>, Self> {
+        match self {
+            Self::VertexLists(l) => Ok(l),
+            _ => Err(self),
+        }
+    }
+    
+    pub fn as_vertex_lists(&self) -> Option<&Vec<List<Vertex>>> {
+        match self {
+            Self::VertexLists(l) => Some(l),
+            _ => None,
+        }
+    }
+
+    pub fn is_vertex_lists(&self) -> bool {
+        match self {
+            Self::VertexLists(_) => true,
+            _ => false,
         }
     }
 }
@@ -96,9 +266,9 @@ impl Display for Response {
         }
         if self.data.is_some() {
             write!(f, " {}", self.data.clone().unwrap())?;
-            if let Some(ResponseData::MultiLine(_)) = self.data {
+            if let Some(ResponseData::CommandNames(_)) = self.data {
                 write!(f, "\n")
-            } else if let Some(ResponseData::MultiLineList(_)) = self.data {
+            } else if let Some(ResponseData::VertexLists(_)) = self.data {
                 write!(f, "\n")
             } else {
                 write!(f, "\n\n")
@@ -244,14 +414,14 @@ impl Response {
     pub fn command_names(commands: Vec<CommandName>) -> Self {
         Self {
             id: None,
-            data: Some(ResponseData::MultiLine(commands)),
+            data: Some(ResponseData::CommandNames(commands)),
         }
     }
     
     pub fn command_names_with_id(id: u32, commands: Vec<CommandName>) -> Self {
         Self {
             id: Some(id),
-            data: Some(ResponseData::MultiLine(commands)),
+            data: Some(ResponseData::CommandNames(commands)),
         }
     }
 
@@ -283,18 +453,34 @@ impl Response {
         }
     }
 
-    pub fn multiline_list(list: Vec<List<Vertex>>) -> Self {
+    pub fn vertex_lists(list: Vec<List<Vertex>>) -> Self {
         Self {
             id: None,
-            data: Some(ResponseData::MultiLineList(list)),
+            data: Some(ResponseData::VertexLists(list)),
         }
     }
 
-    pub fn multiline_list_with_id(id: u32, list: Vec<List<Vertex>>) -> Self {
+    pub fn vertex_lists_with_id(id: u32, list: Vec<List<Vertex>>) -> Self {
         Self {
             id: Some(id),
-            data: Some(ResponseData::MultiLineList(list)),
+            data: Some(ResponseData::VertexLists(list)),
         }
+    }
+
+    pub fn id(&self) -> &Option<u32> {
+        &self.id
+    }
+
+    pub fn id_mut(&mut self) -> &mut Option<u32> {
+        &mut self.id
+    }
+
+    pub fn response_data(&self) -> &Option<ResponseData> {
+        &self.data
+    }
+    
+    pub fn response_data_mut(&mut self) -> &mut Option<ResponseData> {
+        &mut self.data
     }
 }
 

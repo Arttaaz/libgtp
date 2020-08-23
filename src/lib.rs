@@ -3,8 +3,8 @@ extern crate alloc;
 #[cfg(test)]
 extern crate std;
 
-pub mod model;
 
+pub mod model;
 #[cfg(test)]
 #[global_allocator]
 static A : std::alloc::System = std::alloc::System;
@@ -12,7 +12,7 @@ static A : std::alloc::System = std::alloc::System;
 pub mod prelude {
     pub use crate::model::Command;
     pub use crate::model::Response;
-    pub use crate::model::types::*;
+    pub use crate::model::Failure;
 }
 
 
@@ -22,8 +22,8 @@ fn test_collection_macro() {
     use alloc::format;
     use core::str::FromStr;
 
-    let c = collection!(model::types::Color::Black.into(),
-                        model::types::Move::from_str("W B2").unwrap().into());
+    let c = collection!(model::Color::Black.into(),
+                        model::Move::from_str("W B2").unwrap().into());
 
     assert_eq!("B", format!("{}", c[0]));
     assert_eq!("W B2", format!("{}", c[1]));
