@@ -50,6 +50,13 @@ impl Args {
         }
     }
 
+    pub fn as_int(&self) -> Option<&u32> {
+        match self {
+            Self::Int(i) => Some(i),
+            _ => None,
+        }
+    }
+
     pub fn float(f: f32) -> Self {
         Self::Float(f)
     }
@@ -58,6 +65,13 @@ impl Args {
         match self {
             Self::Float(f) => Ok(f),
             _ => Err(self),
+        }
+    }
+
+    pub fn as_float(&self) -> Option<&f32> {
+        match self {
+            Self::Float(f) => Some(f),
+            _ => None,
         }
     }
 
@@ -72,6 +86,13 @@ impl Args {
         }
     }
 
+    pub fn as_string(&self) -> Option<&String> {
+        match self {
+            Self::String(s) => Some(s),
+            _ => None,
+        }
+    }
+
     pub fn collection(c: Collection) -> Self {
         Self::Collection(c)
     }
@@ -80,6 +101,13 @@ impl Args {
         match self {
             Self::Collection(c) => Ok(c),
             _ => Err(self),
+        }
+    }
+
+    pub fn as_collection(&self) -> Option<&Collection> {
+        match self {
+            Self::Collection(c) => Some(c),
+            _ => None,
         }
     }
 
@@ -94,6 +122,13 @@ impl Args {
         }
     }
 
+    pub fn as_list_vertex(&self) -> Option<&List<Vertex>> {
+        match self {
+            Self::ListVertex(l) => Some(l),
+            _ => None,
+        }
+    }
+
     pub fn list_move(l: List<Move>) -> Self {
         Self::ListMove(l)
     }
@@ -105,6 +140,13 @@ impl Args {
         }
     }
 
+    pub fn as_list_move(&self) -> Option<&List<Move>> {
+        match self {
+            Self::ListMove(l) => Some(l),
+            _ => None,
+        }
+    }
+
     pub fn entity(e: SimpleEntity) -> Self {
         Self::Entity(e)
     }
@@ -113,6 +155,13 @@ impl Args {
         match self {
             Self::Entity(e) => Ok(e),
             _ => Err(self),
+        }
+    }
+
+    pub fn as_entity(&self) -> Option<&SimpleEntity> {
+        match self {
+            Self::Entity(e) => Some(e),
+            _ => None,
         }
     }
 }
