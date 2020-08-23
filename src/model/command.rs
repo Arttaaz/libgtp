@@ -43,10 +43,10 @@ impl Args {
         Self::Int(i)
     }
 
-    pub fn to_int(self) -> Option<u32> {
+    pub fn to_int(self) -> Result<u32, Self> {
         match self {
-            Self::Int(i) => Some(i),
-            _ => None,
+            Self::Int(i) => Ok(i),
+            _ => Err(self),
         }
     }
 
@@ -54,10 +54,10 @@ impl Args {
         Self::Float(f)
     }
 
-    pub fn to_float(self) -> Option<f32> {
+    pub fn to_float(self) -> Result<f32, Self> {
         match self {
-            Self::Float(f) => Some(f),
-            _ => None,
+            Self::Float(f) => Ok(f),
+            _ => Err(self),
         }
     }
 
@@ -65,10 +65,10 @@ impl Args {
         Self::String(s)
     }
 
-    pub fn to_string(self) -> Option<String> {
+    pub fn to_string(self) -> Result<String, Self> {
         match self {
-            Self::String(s) => Some(s),
-            _ => None,
+            Self::String(s) => Ok(s),
+            _ => Err(self),
         }
     }
 
@@ -76,10 +76,10 @@ impl Args {
         Self::Collection(c)
     }
 
-    pub fn to_collection(self) -> Option<Collection> {
+    pub fn to_collection(self) -> Result<Collection, Self> {
         match self {
-            Self::Collection(c) => Some(c),
-            _ => None,
+            Self::Collection(c) => Ok(c),
+            _ => Err(self),
         }
     }
 
@@ -87,10 +87,10 @@ impl Args {
         Self::ListVertex(l)
     }
 
-    pub fn to_list_vertex(self) -> Option<List<Vertex>> {
+    pub fn to_list_vertex(self) -> Result<List<Vertex>, Self> {
         match self {
-            Self::ListVertex(l) => Some(l),
-            _ => None,
+            Self::ListVertex(l) => Ok(l),
+            _ => Err(self),
         }
     }
 
@@ -98,10 +98,10 @@ impl Args {
         Self::ListMove(l)
     }
 
-    pub fn to_list_move(self) -> Option<List<Move>> {
+    pub fn to_list_move(self) -> Result<List<Move>, Self> {
         match self {
-            Self::ListMove(l) => Some(l),
-            _ => None,
+            Self::ListMove(l) => Ok(l),
+            _ => Err(self),
         }
     }
 
@@ -109,10 +109,10 @@ impl Args {
         Self::Entity(e)
     }
 
-    pub fn to_entity(self) -> Option<SimpleEntity> {
+    pub fn to_entity(self) -> Result<SimpleEntity, Self> {
         match self {
-            Self::Entity(e) => Some(e),
-            _ => None,
+            Self::Entity(e) => Ok(e),
+            _ => Err(self),
         }
     }
 }
