@@ -12,6 +12,8 @@ impl Engine {
     pub fn new(name: &str, args: &[&str], rx: Receiver<String>) -> Result<(Self, Receiver<String>), std::io::Error> {
         let mut child = std::process::Command::new(name)
             .args(args)
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
             .spawn()?;
         let mut string: String = "".to_string();
         println!("{}", child.stdout.as_mut().unwrap().read_to_string(&mut string).unwrap());
