@@ -1,19 +1,27 @@
 use std::io::{ Write, Read };
+use std::sync::mpsc::{ channel, Sender, Receiver };
 use alloc::collections::VecDeque;
 use crate::model::Command;
+use crate::Engine;
 
 #[derive(Debug)]
-pub struct Controller<W: Write + Read> {
+pub struct Controller {
     /// link to engine
-    engine: W,
+    engine: Engine,
+    receiver: Receiver<String>,
+    engine_sender: Sender<String>,
     /// commands waiting an answer from the engine
     waiting_for_answer: VecDeque<Command>,
 }
 
-impl<W: Write + Read> Controller<W> {
-    pub fn new(engine: W) -> Self {
+impl Controller {
+    pub fn new(engine_name: &str, engine_args: &[&str]) -> Self {
+        let (tx, rx) = channel();
+        let (engine, receiver) = Engine::new(engine_name, engine_args, rx).unwrap();
         Self {
             engine,
+            receiver,
+            engine_sender: tx,
             waiting_for_answer: VecDeque::new(),
         }
     }

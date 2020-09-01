@@ -5,6 +5,8 @@ pub mod model;
 pub mod controller;
 #[cfg(feature = "controller")]
 pub mod engine;
+#[cfg(feature = "controller")]
+pub use engine::Engine;
 
 #[cfg(test)]
 #[global_allocator]

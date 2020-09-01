@@ -1,6 +1,7 @@
 use std::io::{ Read, Write };
 use std::sync::mpsc::{ channel, Sender, Receiver };
 
+#[derive(Debug)]
 pub struct Engine {
     child: std::process::Child,
     rx: Receiver<String>,
