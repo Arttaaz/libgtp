@@ -46,17 +46,17 @@ impl Answer {
         }
     }
 
-    pub fn to_response(self) -> Option<Response> {
+    pub fn to_response(self) -> Result<Response, Self> {
         match self {
-            Self::Response(r) => Some(r),
-            Self::Failure(_) => None,
+            Self::Response(r) => Ok(r),
+            Self::Failure(_) => Err(self),
         }
     }
 
-    pub fn to_failure(self) -> Option<Failure> {
+    pub fn to_failure(self) -> Result<Failure, Self> {
         match self {
-            Self::Failure(f) => Some(f),
-            Self::Response(_) => None,
+            Self::Failure(f) => Ok(f),
+            Self::Response(_) => Err(self),
         }
     }
 }

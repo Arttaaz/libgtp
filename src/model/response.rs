@@ -6,7 +6,7 @@ use core::fmt::Display;
 use core::fmt;
 use core::str::FromStr;
 use alloc::vec::Vec;
-use log::debug;
+//use log::debug;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -43,7 +43,6 @@ impl FromStr for ResponseData {
     type Err = crate::model::ParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
-        debug!("parsing from: {}", str);
         if let Ok(i) = str.parse::<u32>() {
             return Ok(Self::Integer(i));
         } else if let Ok(b) = str.parse::<Boolean>() {
@@ -57,12 +56,11 @@ impl FromStr for ResponseData {
         }
 
         let mut matches: Vec<&str> = str.split('\n').collect();
-        debug!("{:?}", &matches);
         if matches.len() > 1 {
             matches.pop();
             matches.pop();
-            if let Ok(_) = matches[0].to_string().parse::<CommandName>() {
-                return Ok(Self::CommandNames(matches.into_iter().map(|x| x.to_string().parse().unwrap()).collect()));
+            if let Ok(_) = matches[0].parse::<CommandName>() {
+                return Ok(Self::CommandNames(matches.into_iter().map(|x| x.parse().unwrap()).collect()));
             }
 
             let lines: Vec<Result<List<Vertex>, Self::Err>> = matches.into_iter().map(|x| x.parse::<List<Vertex>>()).collect();
@@ -475,11 +473,11 @@ impl Response {
         &mut self.id
     }
 
-    pub fn response_data(&self) -> &Option<ResponseData> {
+    pub fn data(&self) -> &Option<ResponseData> {
         &self.data
     }
     
-    pub fn response_data_mut(&mut self) -> &mut Option<ResponseData> {
+    pub fn data_mut(&mut self) -> &mut Option<ResponseData> {
         &mut self.data
     }
 }

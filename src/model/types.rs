@@ -14,8 +14,6 @@ use super::ParseError;
 
 //use log::debug;
 
-#[cfg(feature = "serde")]
-use serde::{ Deserialize, Serialize };
 
 // MACROS
 #[macro_export]
@@ -46,7 +44,6 @@ macro_rules! list {
     };
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy)]
 pub enum Boolean {
     True,
@@ -74,7 +71,6 @@ impl FromStr for Boolean {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct Score(String);
 
@@ -110,7 +106,6 @@ impl Display for Score {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Vertex {
     Coord(u8, u8),
@@ -197,7 +192,6 @@ impl Vertex {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Color {
     Black,
@@ -249,7 +243,6 @@ impl core::cmp::PartialEq<String> for Color {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Move {
     pub color: Color,
@@ -298,7 +291,6 @@ impl core::cmp::PartialEq<String> for Move {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, Hash)]
 pub enum SimpleEntity {
     Vertex(Vertex),
@@ -373,7 +365,6 @@ impl SimpleEntity {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Hash)]
 pub struct Collection(Vec<SimpleEntity>);
 
@@ -509,7 +500,6 @@ impl Collection {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Hash)]
 pub struct List<T : Entity>(Vec<T>);
 

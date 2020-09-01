@@ -4,8 +4,11 @@ version = "0.1.0"
 authors = ["Arttaaz <arttaaz@gmail.com>"]
 edition = "2018"
 
+[features]
+default = ["controller"]
+controller = []
+
 [dependencies]
-serde = { version = "1.0", features = ["derive"], optional = true }
 log = "0.4"
-scrub_log = "0.2.1" 
+scrub_log = "0.2.1"
 

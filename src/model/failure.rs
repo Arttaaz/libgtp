@@ -21,7 +21,7 @@ impl Display for Failure {
         if self.id.is_some() {
             write!(f, "{}", self.id.unwrap())?;
         }
-        write!(f, " {}", self.message)
+        write!(f, " {}\n\n", self.message)
     }
 }
 

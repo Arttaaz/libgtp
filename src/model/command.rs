@@ -312,7 +312,7 @@ impl FromStr for Command {
     type Err = crate::model::ParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
-        let mut matches : Vec<String> = str.split_ascii_whitespace().map(|x| x.to_string()).collect();
+        let mut matches : Vec<_> = str.split_ascii_whitespace().collect();
         let mut id = None;
         if let Ok(has_id) = matches[0].parse::<u32>() {
             id = Some(has_id);
@@ -321,7 +321,7 @@ impl FromStr for Command {
         let name = matches.remove(0);
         let args = matches.concat();
 
-        match name.as_str() {
+        match name {
             "protocol_version" |
             "name" |
             "version" |
@@ -333,14 +333,14 @@ impl FromStr for Command {
             "showboard"
                 => Ok(Self {
                         id,
-                        name: name.into(),
+                        name: CommandName::from_str(name).unwrap(),
                         args: None
                     }),
             "known_command" |
             "final_status_list"
                 => Ok(Self {
                         id,
-                        name: name.into(),
+                        name: CommandName::from_str(name).unwrap(),
                         args: Some(Args::string(args)),
                     }),
             "boardsize" |
@@ -348,19 +348,19 @@ impl FromStr for Command {
             "place_free_handicap"
                 => Ok(Self {
                         id,
-                        name: name.into(),
+                        name: CommandName::from_str(name).unwrap(),
                         args: Some(Args::int(args.parse()?)),
                     }),
             "komi"
                 => Ok(Self{
                         id,
-                        name: name.into(),
+                        name: CommandName::from_str(name).unwrap(),
                         args: Some(Args::float(args.parse()?)),
                     }),
             "set_free_handicap"
                 => Ok(Self{
                         id,
-                        name: name.into(),
+                        name: CommandName::from_str(name).unwrap(),
                         args: Some(Args::list_vertex(args.as_str().parse()?)),
                     }),
             "play" |
@@ -368,7 +368,7 @@ impl FromStr for Command {
             "reg_genmove"
                 => Ok(Self {
                         id,
-                        name: name.into(),
+                        name: CommandName::from_str(name).unwrap(),
                         args: Some(Args::entity(args.as_str().parse()?))
                     }),
             "time_settings" |
@@ -376,7 +376,7 @@ impl FromStr for Command {
             "loadsgf"
                 => Ok(Self {
                         id,
-                        name: name.into(),
+                        name: CommandName::from_str(name).unwrap(),
                         args: Some(Args::collection(args.as_str().parse()?)),
                     }),
             _ => Err(crate::model::ParseError::WrongCommandName)
