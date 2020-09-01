@@ -20,7 +20,10 @@ impl Controller {
         let (tx, rx) = channel();
         let (engine, receiver) = match Engine::new(engine_name, engine_args, rx) {
             Ok((e, r)) => (e, r),
-            Err(e) => error!("{}", e),
+            Err(e) => {
+                error!("{}", e);
+                    panic!();
+            },
         };
         Self {
             engine,
