@@ -3,6 +3,7 @@ use std::sync::mpsc::{ channel, Sender, Receiver };
 use alloc::collections::VecDeque;
 use crate::model::Command;
 use crate::Engine;
+use log::error;
 
 #[derive(Debug)]
 pub struct Controller {
@@ -17,7 +18,10 @@ pub struct Controller {
 impl Controller {
     pub fn new(engine_name: &str, engine_args: &[&str]) -> Self {
         let (tx, rx) = channel();
-        let (engine, receiver) = Engine::new(engine_name, engine_args, rx).unwrap();
+        let (engine, receiver) = match Engine::new(engine_name, engine_args, rx) {
+            Ok((e, r)) => (e, r),
+            Err(e) => error!("{}", e),
+        };
         Self {
             engine,
             receiver,
