@@ -16,9 +16,10 @@ impl Engine {
             .stdout(std::process::Stdio::piped())
             .spawn()?;
         let mut string: String = "".to_string();
-        println!("{}", child.stdout.as_mut().unwrap().read_to_string(&mut string).unwrap());
-        println!("{}", string);
+        log::info!("{}", child.stdout.as_mut().unwrap().read_to_string(&mut string).unwrap());
+        log::info!("{}", string);
         let (tx, controller_receiver) = channel();
+        log::info!("what");
         // start thread to listen to stderr
         Ok((Self {
             child,
