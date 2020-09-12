@@ -1,4 +1,4 @@
-use std::io::{ Read, Write };
+use std::io::{ BufReader, BufRead, BufWriter, Read, Write };
 use std::sync::mpsc::{ channel, Sender, Receiver };
 
 #[derive(Debug)]
@@ -10,16 +10,17 @@ pub struct Engine {
 
 impl Engine {
     pub fn new(name: &str, args: &[&str], rx: Receiver<String>) -> Result<(Self, Receiver<String>), std::io::Error> {
+        let (tx, controller_receiver) = channel();
         let mut child = std::process::Command::new(name)
             .args(args)
             .stdin(std::process::Stdio::piped())
             .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
             .spawn()?;
-        let mut string: String = "".to_string();
-        log::info!("{}", child.stdout.as_mut().unwrap().read_to_string(&mut string).unwrap());
-        log::info!("{}", string);
-        let (tx, controller_receiver) = channel();
-        log::info!("what");
+
+        let mut stdin  = BufWriter::new(child.stdin.take().unwrap());
+        let mut stdout = BufReader::new(child.stdout.take().unwrap());
+        let mut stderr = BufReader::new(child.stderr.take().unwrap());
         // start thread to listen to stderr
         Ok((Self {
             child,

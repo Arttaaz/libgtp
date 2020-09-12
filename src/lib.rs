@@ -7,6 +7,8 @@ pub mod controller;
 pub mod engine;
 #[cfg(feature = "controller")]
 pub use engine::Engine;
+#[cfg(feature = "controller")]
+pub use controller::Controller;
 
 #[cfg(test)]
 #[global_allocator]
@@ -79,4 +81,12 @@ fn test_failure() {
 
     let failure: Failure = "? syntax error".parse().unwrap();
     assert_eq!(failure.to_string(), "? syntax error\n\n");
+}
+
+#[test]
+fn test_controller() {
+    use crate::Controller;
+    
+    let controller = Controller::new("../Ainalyzer/KataGo/katago", &["gtp"]);
+    log::info!("hello");
 }
