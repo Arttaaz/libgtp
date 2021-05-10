@@ -22,6 +22,7 @@ pub enum Args {
     Float(f32),
     Int(u32),
     Entity(SimpleEntity),
+    KataSize(RectSize),
 }
 
 impl Display for Args {
@@ -34,6 +35,7 @@ impl Display for Args {
             Self::Float(float) => write!(f, "{}", float),
             Self::Int(i) => write!(f, "{}", i),
             Self::Entity(e) => write!(f, "{}", e),
+            Self::KataSize(s) => write!(f, "{}", s),
         }
     }
 }
@@ -164,6 +166,51 @@ impl Args {
             _ => None,
         }
     }
+
+    pub fn kata_size(e: RectSize) -> Self {
+        Self::KataSize(e)
+    }
+
+    pub fn to_kata_size(self) -> Result<RectSize, Self> {
+        match self {
+            Self::KataSize(e) => Ok(e),
+            _ => Err(self),
+        }
+    }
+
+    pub fn as_kata_size(&self) -> Option<&RectSize> {
+        match self {
+            Self::KataSize(e) => Some(e),
+            _ => None,
+        }
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
+pub struct RectSize((u32, u32));
+impl FromStr for RectSize {
+    type Err = crate::model::ParseError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut matches = s.split_ascii_whitespace();
+        let width = if let Some(s) = matches.next() {
+            s.parse()?
+        } else {
+            return Err(Self::Err::WrongAlternative)
+        };
+        let height = if let Some(s) = matches.next() {
+            s.parse()?
+        } else {
+            return Err(Self::Err::WrongAlternative)
+        };
+        Ok(Self((width, height)))
+    }
+}
+
+impl Display for RectSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {}", self.0.0, self.0.1)
+    }
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -192,6 +239,25 @@ pub enum CommandName {
     Loadsgf,
     RegGenmove,
     Unknown,
+    RectangularBoardsize,
+    SetPosition,
+    ClearCache,
+    Stop,
+    KataGetRules,
+    KataSetRules,
+    KataSetRule,
+    KgsRules,
+    KgsTimeSettings,
+    LzAnalyze,
+    KataAnalyze,
+    LzGenmoveAnalyze,
+    KataGenmoveAnalyze,
+    Analyze,
+    GenmoveAnalyze,
+    KataRawNn,
+    KataGetParam,
+    Cputime,
+    GomillCputime,
 }
 
 impl FromStr for CommandName {
@@ -221,6 +287,25 @@ impl FromStr for CommandName {
             "final_status_list" => Ok(Self::FinalStatusList),
             "loadsgf" => Ok(Self::Loadsgf),
             "reg_genmove" => Ok(Self::RegGenmove),
+            "rectangular_boardsize" => Ok(Self::RectangularBoardsize),
+            "set_position" => Ok(Self::SetPosition),
+            "clear_cache" => Ok(Self::ClearCache),
+            "stop" => Ok(Self::Stop),
+            "kata_get_rules" => Ok(Self::KataGetRules),
+            "kata_set_rules" => Ok(Self::KataSetRules),
+            "kata_set_rule" => Ok(Self::KataSetRule),
+            "kgs_rules" => Ok(Self::KgsRules),
+            "kgs_time_settings" => Ok(Self::KgsTimeSettings),
+            "lz_analyze" => Ok(Self::LzAnalyze),
+            "kata_analyze" => Ok(Self::KataAnalyze),
+            "lz_genmove_analyze" => Ok(Self::LzGenmoveAnalyze),
+            "kata_genmove_analyze" => Ok(Self::KataGenmoveAnalyze),
+            "analyze" => Ok(Self::Analyze),
+            "genmove_analyze" => Ok(Self::GenmoveAnalyze),
+            "kata_raw_nn" => Ok(Self::KataRawNn),
+            "kata_get_param" => Ok(Self::KataGetParam),
+            "cputime" => Ok(Self::Cputime),
+            "gomill_cputime" => Ok(Self::GomillCputime),
             _ => Err(Self::Err::WrongAlternative),
         }
     }
@@ -251,6 +336,25 @@ impl From<String> for CommandName {
             "final_status_list" => Self::FinalStatusList,
             "loadsgf" => Self::Loadsgf,
             "reg_genmove" => Self::RegGenmove,
+            "rectangular_boardsize" => Self::RectangularBoardsize,
+            "set_position" => Self::SetPosition,
+            "clear_cache" => Self::ClearCache,
+            "stop" => Self::Stop,
+            "kata_get_rules" => Self::KataGetRules,
+            "kata_set_rules" => Self::KataSetRules,
+            "kata_set_rule" => Self::KataSetRule,
+            "kgs_rules" => Self::KgsRules,
+            "kgs_time_settings" => Self::KgsTimeSettings,
+            "lz_analyze" => Self::LzAnalyze,
+            "kata_analyze" => Self::KataAnalyze,
+            "lz_genmove_analyze" => Self::LzGenmoveAnalyze,
+            "kata_genmove_analyze" => Self::KataGenmoveAnalyze,
+            "analyze" => Self::Analyze,
+            "genmove_analyze" => Self::GenmoveAnalyze,
+            "kata_raw_nn" => Self::KataRawNn,
+            "kata_get_param" => Self::KataGetParam,
+            "cputime" => Self::Cputime,
+            "gomill_cputime" => Self::GomillCputime,
             _ => Self::Unknown,
         }
     }
@@ -259,29 +363,48 @@ impl From<String> for CommandName {
 impl Display for CommandName {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
-            Self::ProtocolVersion => write!(f, "protocol_version"),
-            Self::Name => write!(f, "name"),
-            Self::Version => write!(f, "version"),
-            Self::ListCommands => write!(f, "list_commands"),
-            Self::Quit => write!(f, "quit"),
-            Self::ClearBoard => write!(f, "clear_board"),
-            Self::Undo => write!(f, "undo"),
-            Self::FinalScore => write!(f, "final_score"),
-            Self::Showboard => write!(f, "showboard"),
-            Self::KnownCommand => write!(f, "known_command"),
-            Self::Boardsize => write!(f, "boardsize"),
-            Self::Komi => write!(f, "komi"),
-            Self::FixedHandicap => write!(f, "fixed_handicap"),
-            Self::PlaceFreeHandicap => write!(f, "place_free_handicap"),
-            Self::SetFreeHandicap => write!(f, "set_free_handicap"),
-            Self::Play => write!(f, "play"),
-            Self::Genmove => write!(f, "genmove"),
-            Self::TimeSettings => write!(f, "time_settings"),
-            Self::TimeLeft => write!(f, "time_left"),
-            Self::FinalStatusList => write!(f, "final_status_list"),
-            Self::Loadsgf => write!(f, "loadsgf"),
-            Self::RegGenmove => write!(f, "reg_genmove"),
-            Self::Unknown => write!(f, "unknown"),
+            Self::ProtocolVersion =>      write!(f, "protocol_version"),
+            Self::Name =>                 write!(f, "name"),
+            Self::Version =>              write!(f, "version"),
+            Self::ListCommands =>         write!(f, "list_commands"),
+            Self::Quit =>                 write!(f, "quit"),
+            Self::ClearBoard =>           write!(f, "clear_board"),
+            Self::Undo =>                 write!(f, "undo"),
+            Self::FinalScore =>           write!(f, "final_score"),
+            Self::Showboard =>            write!(f, "showboard"),
+            Self::KnownCommand =>         write!(f, "known_command"),
+            Self::Boardsize =>            write!(f, "boardsize"),
+            Self::Komi =>                 write!(f, "komi"),
+            Self::FixedHandicap =>        write!(f, "fixed_handicap"),
+            Self::PlaceFreeHandicap =>    write!(f, "place_free_handicap"),
+            Self::SetFreeHandicap =>      write!(f, "set_free_handicap"),
+            Self::Play =>                 write!(f, "play"),
+            Self::Genmove =>              write!(f, "genmove"),
+            Self::TimeSettings =>         write!(f, "time_settings"),
+            Self::TimeLeft =>             write!(f, "time_left"),
+            Self::FinalStatusList =>      write!(f, "final_status_list"),
+            Self::Loadsgf =>              write!(f, "loadsgf"),
+            Self::RegGenmove =>           write!(f, "reg_genmove"),
+            Self::Unknown =>              write!(f, "unknown"),
+            Self::RectangularBoardsize => write!(f, "rectangular_boardsize"),
+            Self::SetPosition =>          write!(f, "set_position"),
+            Self::ClearCache =>           write!(f, "clear_cache"),
+            Self::Stop =>                 write!(f, "stop"),
+            Self::KataGetRules =>         write!(f, "kata_get_rules"),
+            Self::KataSetRules =>         write!(f, "kata_set_rules"),
+            Self::KataSetRule =>          write!(f, "kata_set_rule"),
+            Self::KgsRules =>             write!(f, "kgs_rules"),
+            Self::KgsTimeSettings =>      write!(f, "kgs_time_settings"),
+            Self::LzAnalyze =>            write!(f, "lz_analyze"),
+            Self::KataAnalyze =>          write!(f, "kata_analyze"),
+            Self::LzGenmoveAnalyze =>     write!(f, "lz_genmove_analyze"),
+            Self::KataGenmoveAnalyze =>   write!(f, "kata_genmove_analyze"),
+            Self::Analyze =>              write!(f, "analyze"),
+            Self::GenmoveAnalyze =>       write!(f, "genmove_analyze"),
+            Self::KataRawNn =>            write!(f, "kata_raw_nn"),
+            Self::KataGetParam =>         write!(f, "kata_get_param"),
+            Self::Cputime =>              write!(f, "cputime"),
+            Self::GomillCputime =>        write!(f, "gomill_cputime"),
         }
     }
 }
@@ -330,14 +453,23 @@ impl FromStr for Command {
             "clear_board" |
             "undo" |
             "final_score" |
-            "showboard"
+            "showboard" |
+            "clear_cache" |
+            "stop" |
+            "kata-get-rules" |
+            "cputime" |
+            "gomill-cpu_time"
                 => Ok(Self {
                         id,
                         name: CommandName::from_str(name).unwrap(),
                         args: None
                     }),
             "known_command" |
-            "final_status_list"
+            "final_status_list" |
+            "kata-set-rules" |
+            "kata-set-rule" |
+            "kgs-rules" |
+            "kgs-time_settings"
                 => Ok(Self {
                         id,
                         name: CommandName::from_str(name).unwrap(),
@@ -379,6 +511,16 @@ impl FromStr for Command {
                         name: CommandName::from_str(name).unwrap(),
                         args: Some(Args::collection(args.as_str().parse()?)),
                     }),
+            "set_position" => Ok(Self {
+                        id,
+                        name: CommandName::from_str(name).unwrap(),
+                        args: Some(Args::list_move(args.as_str().parse()?)),
+            }),
+            "rectangular_boardsize" => Ok(Self {
+                        id,
+                        name: CommandName::from_str(name).unwrap(),
+                        args: Some(Args::kata_size(args.as_str().parse()?)),
+            }),
             _ => Err(crate::model::ParseError::WrongCommandName)
         }
     }
