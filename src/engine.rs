@@ -1,3 +1,5 @@
+use std::sync::Arc;
+use std::sync::Mutex;
 use std::io::{ BufReader, BufRead, BufWriter, Read, Write };
 use std::process::ChildStdin;
 use std::process::ChildStdout;
@@ -7,6 +9,7 @@ pub struct Engine {
     child: std::process::Child,
     stdout: BufReader<ChildStdout>,
     stdin: BufWriter<ChildStdin>,
+    pub is_ready: Arc<Mutex<bool>>,
 }
 
 impl Engine {
@@ -20,19 +23,28 @@ impl Engine {
 
         let stdin  = BufWriter::new(child.stdin.take().unwrap());
         let stdout = BufReader::new(child.stdout.take().unwrap());
-        let stderr = BufReader::new(child.stderr.take().unwrap());
         //TODO start thread to listen to stderr
-        std::thread::spawn(|| {
-            for l in stderr.lines() {
-                println!("{}", l.unwrap());
-            }
-            println!("oopsie");
-        });
         Ok(Self {
             child,
             stdout,
             stdin,
+            is_ready: Arc::new(Mutex::new(false)),
         })
+    }
+
+    pub fn start(mut self) -> Self {
+        let is_ready = self.is_ready.clone();
+        let stderr = BufReader::new(self.child.stderr.take().unwrap());
+        std::thread::spawn(move || {
+            for l in stderr.lines().map(|x| x.unwrap()) {
+                eprintln!("{}", l);
+                if l == "GTP ready, beginning main protocol loop".to_string() {
+                    let mut is_ready = is_ready.lock().unwrap();
+                    *is_ready = true;
+                }
+            }
+        });
+        self
     }
 
     pub fn kill(mut self) {
