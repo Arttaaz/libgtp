@@ -1,4 +1,4 @@
-use std::io::{ BufReader, BufWriter, Read, Write };
+use std::io::{ BufReader, BufRead, BufWriter, Read, Write };
 use std::process::ChildStdin;
 use std::process::ChildStdout;
 
@@ -20,8 +20,14 @@ impl Engine {
 
         let stdin  = BufWriter::new(child.stdin.take().unwrap());
         let stdout = BufReader::new(child.stdout.take().unwrap());
-        //let mut stderr = BufReader::new(child.stderr.take().unwrap());
+        let stderr = BufReader::new(child.stderr.take().unwrap());
         //TODO start thread to listen to stderr
+        std::thread::spawn(|| {
+            for l in stderr.lines() {
+                println!("{}", l.unwrap());
+            }
+            println!("oopsie");
+        });
         Ok(Self {
             child,
             stdout,
