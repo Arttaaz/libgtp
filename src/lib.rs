@@ -1,6 +1,7 @@
 extern crate alloc;
 
 pub mod model;
+pub use model::Answer;
 #[cfg(feature = "controller")]
 pub mod controller;
 #[cfg(feature = "controller")]
@@ -50,9 +51,15 @@ fn test_command() {
 
     let command_id: Command = "0 list_commands \n".parse().unwrap();
     assert_eq!(command_id.to_string(), String::from("0 list_commands\n"));
+    
+    let command: Command = "list_commands \n".parse().unwrap();
+    assert_eq!(command.to_string(), String::from("list_commands\n"));
 
     let command_args: Command = "boardsize 19".parse().unwrap();
     assert_eq!(command_args.to_string(), String::from("boardsize 19\n"));
+
+    let command: Command = "kata-analyze interval 100\n".parse().unwrap();
+    assert_eq!(command.to_string(), String::from("kata-analyze interval 100\n"));
 }
 
 #[test]
@@ -87,6 +94,6 @@ fn test_failure() {
 fn test_controller() {
     use crate::Controller;
     
-    let controller = Controller::new("../Ainalyzer/KataGo/katago", &["gtp"]);
+    let _controller = Controller::new("../Ainalyzer/KataGo/katago", &["gtp"]);
     log::info!("hello");
 }

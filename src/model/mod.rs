@@ -94,3 +94,5 @@ impl From<core::num::ParseFloatError> for ParseError {
 pub trait Entity : Display + Debug + Clone + FromStr {
 
 }
+
+impl Entity for String {}

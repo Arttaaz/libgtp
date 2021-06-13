@@ -183,7 +183,7 @@ impl core::cmp::PartialEq<String> for Vertex {
 }
 
 impl Vertex {
-    pub fn to_tupple(&self) -> Option<(u8, u8)> {
+    pub fn to_tuple(&self) -> Option<(u8, u8)> {
         match self {
             Self::Coord(x, y) => Some((*x, *y)),
             Self::Pass => None,
@@ -530,7 +530,7 @@ impl<T: Entity> FromStr for List<T> {
             return Err(Self::Err::WrongArgs);
         }
 
-        let elems : Vec<T> = str.to_uppercase().split_ascii_whitespace()
+        let elems : Vec<T> = str.split_ascii_whitespace()
             .take_while(|e| e.clone() != "".to_string())
             .map(|e| if let Ok(elem) = e.parse::<T>() {
                 elem

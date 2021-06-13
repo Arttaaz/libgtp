@@ -18,6 +18,7 @@ pub enum Args {
     Collection(Collection),
     ListVertex(List<Vertex>),
     ListMove(List<Move>),
+    ListString(List<String>),
     String(String),
     Float(f32),
     Int(u32),
@@ -31,6 +32,7 @@ impl Display for Args {
             Self::Collection(c) => write!(f, "{}", c),
             Self::ListVertex(l) => write!(f, "{}", l),
             Self::ListMove(l) => write!(f, "{}", l),
+            Self::ListString(s) => write!(f, "{}", s),
             Self::String(s) => write!(f, "{}", s),
             Self::Float(float) => write!(f, "{}", float),
             Self::Int(i) => write!(f, "{}", i),
@@ -149,6 +151,24 @@ impl Args {
         }
     }
 
+    pub fn list_string(l: List<String>) -> Self {
+        Self::ListString(l)
+    }
+
+    pub fn to_list_string(self) -> Result<List<String>, Self> {
+        match self {
+            Self::ListString(l) => Ok(l),
+            _ => Err(self),
+        }
+    }
+
+    pub fn as_list_string(&self) -> Option<&List<String>> {
+        match self {
+            Self::ListString(l) => Some(l),
+            _ => None,
+        }
+    }
+
     pub fn entity(e: SimpleEntity) -> Self {
         Self::Entity(e)
     }
@@ -258,6 +278,9 @@ pub enum CommandName {
     KataGetParam,
     Cputime,
     GomillCputime,
+    GetKomi,
+    KataListTimeSettings,
+    KataSetParam,
 }
 
 impl FromStr for CommandName {
@@ -291,21 +314,24 @@ impl FromStr for CommandName {
             "set_position" => Ok(Self::SetPosition),
             "clear_cache" => Ok(Self::ClearCache),
             "stop" => Ok(Self::Stop),
-            "kata_get_rules" => Ok(Self::KataGetRules),
-            "kata_set_rules" => Ok(Self::KataSetRules),
-            "kata_set_rule" => Ok(Self::KataSetRule),
-            "kgs_rules" => Ok(Self::KgsRules),
-            "kgs_time_settings" => Ok(Self::KgsTimeSettings),
-            "lz_analyze" => Ok(Self::LzAnalyze),
-            "kata_analyze" => Ok(Self::KataAnalyze),
-            "lz_genmove_analyze" => Ok(Self::LzGenmoveAnalyze),
-            "kata_genmove_analyze" => Ok(Self::KataGenmoveAnalyze),
+            "kata-get-rules" => Ok(Self::KataGetRules),
+            "kata-set-rules" => Ok(Self::KataSetRules),
+            "kata-set-rule" => Ok(Self::KataSetRule),
+            "kgs-rules" => Ok(Self::KgsRules),
+            "kgs-time_settings" => Ok(Self::KgsTimeSettings),
+            "lz-analyze" => Ok(Self::LzAnalyze),
+            "kata-analyze" => Ok(Self::KataAnalyze),
+            "lz-genmove_analyze" => Ok(Self::LzGenmoveAnalyze),
+            "kata-genmove_analyze" => Ok(Self::KataGenmoveAnalyze),
             "analyze" => Ok(Self::Analyze),
             "genmove_analyze" => Ok(Self::GenmoveAnalyze),
-            "kata_raw_nn" => Ok(Self::KataRawNn),
-            "kata_get_param" => Ok(Self::KataGetParam),
+            "kata-raw-nn" => Ok(Self::KataRawNn),
+            "kata-get-param" => Ok(Self::KataGetParam),
             "cputime" => Ok(Self::Cputime),
-            "gomill_cputime" => Ok(Self::GomillCputime),
+            "gomill-cpu_time" => Ok(Self::GomillCputime),
+            "get_komi" => Ok(Self::GetKomi),
+            "kata-list_time_settings" => Ok(Self::KataListTimeSettings),
+            "kata-set-param" => Ok(Self::KataSetParam),
             _ => Err(Self::Err::WrongAlternative),
         }
     }
@@ -340,21 +366,24 @@ impl From<String> for CommandName {
             "set_position" => Self::SetPosition,
             "clear_cache" => Self::ClearCache,
             "stop" => Self::Stop,
-            "kata_get_rules" => Self::KataGetRules,
-            "kata_set_rules" => Self::KataSetRules,
-            "kata_set_rule" => Self::KataSetRule,
-            "kgs_rules" => Self::KgsRules,
-            "kgs_time_settings" => Self::KgsTimeSettings,
-            "lz_analyze" => Self::LzAnalyze,
-            "kata_analyze" => Self::KataAnalyze,
-            "lz_genmove_analyze" => Self::LzGenmoveAnalyze,
-            "kata_genmove_analyze" => Self::KataGenmoveAnalyze,
+            "kata-get-rules" => Self::KataGetRules,
+            "kata-set-rules" => Self::KataSetRules,
+            "kata-set-rule" => Self::KataSetRule,
+            "kgs-rules" => Self::KgsRules,
+            "kgs-time_settings" => Self::KgsTimeSettings,
+            "lz-analyze" => Self::LzAnalyze,
+            "kata-analyze" => Self::KataAnalyze,
+            "lz-genmove_analyze" => Self::LzGenmoveAnalyze,
+            "kata-genmove_analyze" => Self::KataGenmoveAnalyze,
             "analyze" => Self::Analyze,
             "genmove_analyze" => Self::GenmoveAnalyze,
-            "kata_raw_nn" => Self::KataRawNn,
-            "kata_get_param" => Self::KataGetParam,
+            "kata-raw-nn" => Self::KataRawNn,
+            "kata-get-param" => Self::KataGetParam,
             "cputime" => Self::Cputime,
-            "gomill_cputime" => Self::GomillCputime,
+            "gomill-cpu_time" => Self::GomillCputime,
+            "get_komi" => Self::GetKomi,
+            "kata-list_time_settings" => Self::KataListTimeSettings,
+            "kata-set-param" => Self::KataSetParam,
             _ => Self::Unknown,
         }
     }
@@ -390,21 +419,24 @@ impl Display for CommandName {
             Self::SetPosition =>          write!(f, "set_position"),
             Self::ClearCache =>           write!(f, "clear_cache"),
             Self::Stop =>                 write!(f, "stop"),
-            Self::KataGetRules =>         write!(f, "kata_get_rules"),
-            Self::KataSetRules =>         write!(f, "kata_set_rules"),
-            Self::KataSetRule =>          write!(f, "kata_set_rule"),
-            Self::KgsRules =>             write!(f, "kgs_rules"),
-            Self::KgsTimeSettings =>      write!(f, "kgs_time_settings"),
-            Self::LzAnalyze =>            write!(f, "lz_analyze"),
-            Self::KataAnalyze =>          write!(f, "kata_analyze"),
-            Self::LzGenmoveAnalyze =>     write!(f, "lz_genmove_analyze"),
-            Self::KataGenmoveAnalyze =>   write!(f, "kata_genmove_analyze"),
+            Self::KataGetRules =>         write!(f, "kata-get_rules"),
+            Self::KataSetRules =>         write!(f, "kata-set-rules"),
+            Self::KataSetRule =>          write!(f, "kata-set-rule"),
+            Self::KgsRules =>             write!(f, "kgs-rules"),
+            Self::KgsTimeSettings =>      write!(f, "kgs-time_settings"),
+            Self::LzAnalyze =>            write!(f, "lz-analyze"),
+            Self::KataAnalyze =>          write!(f, "kata-analyze"),
+            Self::LzGenmoveAnalyze =>     write!(f, "lz-genmove_analyze"),
+            Self::KataGenmoveAnalyze =>   write!(f, "kata-genmove_analyze"),
             Self::Analyze =>              write!(f, "analyze"),
             Self::GenmoveAnalyze =>       write!(f, "genmove_analyze"),
-            Self::KataRawNn =>            write!(f, "kata_raw_nn"),
-            Self::KataGetParam =>         write!(f, "kata_get_param"),
+            Self::KataRawNn =>            write!(f, "kata-raw-nn"),
+            Self::KataGetParam =>         write!(f, "kata-get-param"),
             Self::Cputime =>              write!(f, "cputime"),
-            Self::GomillCputime =>        write!(f, "gomill_cputime"),
+            Self::GomillCputime =>        write!(f, "gomill-cpu_time"),
+            Self::GetKomi =>              write!(f, "get_komi"),
+            Self::KataListTimeSettings => write!(f, "kata-list_time_settings"),
+            Self::KataSetParam =>         write!(f, "kata-set-param"),
         }
     }
 }
@@ -442,7 +474,7 @@ impl FromStr for Command {
             matches.remove(0);
         }
         let name = matches.remove(0);
-        let args = matches.concat();
+        let args = matches.join(" ");
 
         match name {
             "protocol_version" |
@@ -458,18 +490,17 @@ impl FromStr for Command {
             "stop" |
             "kata-get-rules" |
             "cputime" |
-            "gomill-cpu_time"
+            "gomill-cpu_time" |
+            "get_komi" |
+            "kata-list_time_settings" |
+            "kata-list-params"
                 => Ok(Self {
                         id,
                         name: CommandName::from_str(name).unwrap(),
                         args: None
                     }),
             "known_command" |
-            "final_status_list" |
-            "kata-set-rules" |
-            "kata-set-rule" |
-            "kgs-rules" |
-            "kgs-time_settings"
+            "final_status_list"
                 => Ok(Self {
                         id,
                         name: CommandName::from_str(name).unwrap(),
@@ -501,7 +532,7 @@ impl FromStr for Command {
                 => Ok(Self {
                         id,
                         name: CommandName::from_str(name).unwrap(),
-                        args: Some(Args::entity(args.as_str().parse()?))
+                        args: Some(Args::entity(args.as_str().parse()?)),
                     }),
             "time_settings" |
             "time_left" |
@@ -521,7 +552,25 @@ impl FromStr for Command {
                         name: CommandName::from_str(name).unwrap(),
                         args: Some(Args::kata_size(args.as_str().parse()?)),
             }),
-            _ => Err(crate::model::ParseError::WrongCommandName)
+            "kata-set-rules" |
+            "kata-set-rule" |
+            "kgs-rules" |
+            "kgs-time_settings" |
+            "kata-analyze" |
+            "lz-analyze" |
+            "analyze" |
+            "lz-genmove_analyze" |
+            "kata-genmove_analyze" |
+            "genmove_analyze" |
+            "kata-raw-nn" |
+            "kata-get-param" |
+            "kata-set-param"
+                => Ok(Self {
+                        id,
+                        name: CommandName::from_str(name).unwrap(),
+                        args: Some(Args::list_string(args.as_str().parse()?)),
+                }),
+            _ => Err(crate::model::ParseError::WrongCommandName) //unreachable
         }
     }
 }
