@@ -29,7 +29,7 @@ impl FromStr for Failure {
     type Err = crate::model::ParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
-        if str.get(0..1).unwrap() != "?" {
+        if str.get(0..1) != Some("?") {
             return Err(Self::Err::WrongFailureFormat);
         }
 

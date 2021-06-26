@@ -37,7 +37,17 @@ impl Controller {
         Ok(Answer::parse_answer(s.as_str()).unwrap())
     }
 
-    pub fn read_info(&self) -> String {
-        self.engine.read_info()
+    pub fn read_info(&self) -> Result<Option<crate::model::Info>, crate::model::ParseError> {
+        let s = self.engine.read_info();
+        if s.is_empty() {
+            return Ok(None)
+        }
+        let answer = Answer::parse_answer(s.as_str())?;
+        dbg!("{:?}", &answer);
+        if answer.is_info() {
+            Ok(Some(answer.to_info().unwrap()))
+        } else {
+            Err(crate::model::ParseError::WrongAnswerFormat)
+        }
     }
 }

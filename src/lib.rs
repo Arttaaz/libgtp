@@ -2,6 +2,7 @@ extern crate alloc;
 
 pub mod model;
 pub use model::Answer;
+pub use model::Info;
 #[cfg(feature = "controller")]
 pub mod controller;
 #[cfg(feature = "controller")]

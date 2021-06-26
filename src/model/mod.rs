@@ -1,5 +1,6 @@
 mod command;
 mod failure;
+mod info;
 mod response;
 mod types;
 use core::str::FromStr;
@@ -8,55 +9,73 @@ use core::fmt::Display;
 #[cfg(feature = "serde")]
 use serde::{Serialize, Deserialize};
 
-pub use types::*;
 pub use command::*;
-pub use response::*;
 pub use failure::*;
+pub use info::*;
+pub use response::*;
+pub use types::*;
 
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub enum Answer {
-    Response(Response),
     Failure(Failure),
+    Info(Info),
+    Response(Response),
 }
 
 impl Answer {
     pub fn parse_answer(answer: &str) -> Result<Answer, ParseError> {
         if let Ok(response) = answer.parse::<Response>() {
-         Ok(Answer::Response(response))
+            Ok(Answer::Response(response))
+        } else if let Ok(info) = answer.parse::<Info>() {
+            Ok(Answer::Info(info))
         } else if let Ok(failure) = answer.parse::<Failure>() {
-         Ok(Answer::Failure(failure))
+            Ok(Answer::Failure(failure))
         } else {
-         Err(ParseError::WrongAnswerFormat)
+            Err(ParseError::WrongAnswerFormat)
         }
     }
 
     pub fn is_response(&self) -> bool {
         match self {
             Self::Response(_) => true,
-            Self::Failure(_) => false,
+            _ => false,
         }
     }
 
     pub fn is_failure(&self) -> bool {
         match self {
-            Self::Response(_) => false,
             Self::Failure(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_info(&self) -> bool {
+        match self {
+            Self::Info(_) => true,
+            _ => false,
         }
     }
 
     pub fn to_response(self) -> Result<Response, Self> {
         match self {
             Self::Response(r) => Ok(r),
-            Self::Failure(_) => Err(self),
+            _ => Err(self),
         }
     }
 
     pub fn to_failure(self) -> Result<Failure, Self> {
         match self {
             Self::Failure(f) => Ok(f),
-            Self::Response(_) => Err(self),
+            _ => Err(self),
+        }
+    }
+
+    pub fn to_info(self) -> Result<Info, Self> {
+        match self {
+            Self::Info(i) => Ok(i),
+            _ => Err(self),
         }
     }
 }
