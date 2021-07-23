@@ -83,12 +83,10 @@ impl Engine {
 
 impl Write for Engine {
     fn write(&mut self, buf: &[u8]) -> Result<usize, std::io::Error> {
-        if *self.is_ready.lock().unwrap() == true {
-            println!("{}", String::from_utf8(buf.to_vec()).unwrap());
-            self.stdin.write(buf)
-        } else {
-            Err(std::io::Error::new(std::io::ErrorKind::WriteZero, "gtp not ready"))
-        }
+        while *self.is_ready.lock().unwrap() != true {}
+
+        println!("{}", String::from_utf8(buf.to_vec()).unwrap());
+        self.stdin.write(buf)
     }
 
     fn flush(&mut self) -> Result<(), std::io::Error> {

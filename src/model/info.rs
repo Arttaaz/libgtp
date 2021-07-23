@@ -21,13 +21,16 @@ impl FromStr for Info {
     type Err = super::ParseError;
     
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let matches = s.split_once("ownership ");
-        if matches.is_none() {
+        let matches = if s.contains("ownership ") {
+            s.split_once("ownership ").unwrap()
+        } else {
+            (s, "")
+        };
+        if matches.0.is_empty() {
             return Err(super::ParseError::EmptyString)
         }
-
-        let infos = matches.unwrap().0; //info part
-        let ownership = matches.unwrap().1; //ownership part
+        let infos = matches.0; //info part
+        let ownership = matches.1; //ownership part
         
         let mut matches = infos.split("info");
         matches.next(); //consume empty string
@@ -36,6 +39,7 @@ impl FromStr for Info {
         while let Some(s) = matches.next() {
             infos.push(s.parse()?);
         }
+        dbg!("hello");
         
         let mut vec: Vec<f32> = vec![];
         if !ownership.is_empty() {
@@ -141,6 +145,7 @@ impl FromStr for InfoMove {
                         pv_visits.push(s.parse()?);
                     }
                 },
+                "isSymmetryOf" => { matches.next();},
                 _ => return Err(super::ParseError::WrongAlternative),
             }
         }

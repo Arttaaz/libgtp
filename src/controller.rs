@@ -30,7 +30,6 @@ impl Controller {
     }
 
     pub fn send_command(&mut self, command: Command) -> Result<Answer, std::io::Error>{
-        //TODO: don't make this crash when engine is not ready to receive commands
         self.engine.write(command.to_string().as_bytes())?;
         self.engine.flush()?;
         let s = self.engine.read_line();
@@ -43,7 +42,6 @@ impl Controller {
             return Ok(None)
         }
         let answer = Answer::parse_answer(s.as_str())?;
-        dbg!("{:?}", &answer);
         if answer.is_info() {
             Ok(Some(answer.to_info().unwrap()))
         } else {
