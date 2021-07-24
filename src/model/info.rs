@@ -4,8 +4,8 @@ use crate::model::Vertex;
 
 #[derive(Debug, Clone)]
 pub struct Info {
-    explored_moves: Vec<InfoMove>,
-    ownership: Vec<f32>,
+    pub explored_moves: Vec<InfoMove>,
+    pub ownership: Vec<f32>,
 }
 
 impl Info {
@@ -39,7 +39,6 @@ impl FromStr for Info {
         while let Some(s) = matches.next() {
             infos.push(s.parse()?);
         }
-        dbg!("hello");
         
         let mut vec: Vec<f32> = vec![];
         if !ownership.is_empty() {
@@ -55,21 +54,21 @@ impl FromStr for Info {
 }
 
 #[derive(Debug, Clone)]
-struct InfoMove {
-    coord: Vertex,
-    visits: u64,
-    winrate: f32,
-    score_mean: f32, //compatibility field, same as score_lead
-    score_stdev: f32, //estimation of score after this move
-    score_lead: f32,
-    score_selfplay: f32,
-    prior: f32,
-    utility: f32,
-    lcb: f32,
-    utility_lcb: f32,
-    order: u16, //ranking of the move, max is 361 so u16 is sufficient
-    pv: Vec<Vertex>,
-    pv_visits: Vec<u64>,
+pub struct InfoMove {
+    pub coord: Vertex,
+    pub visits: u64,
+    pub winrate: f32,
+    pub score_mean: f32, //compatibility field, same as score_lead
+    pub score_stdev: f32, //estimation of score after this move
+    pub score_lead: f32,
+    pub score_selfplay: f32,
+    pub prior: f32,
+    pub utility: f32,
+    pub lcb: f32,
+    pub utility_lcb: f32,
+    pub order: u16, //ranking of the move, max is 361 so u16 is sufficient
+    pub pv: Vec<Vertex>,
+    pub pv_visits: Vec<u64>,
 }
 
 impl FromStr for InfoMove {
