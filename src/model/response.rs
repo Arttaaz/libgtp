@@ -86,14 +86,14 @@ impl ResponseData {
         }
     }
 
-    pub fn as_int(&self) -> Option<&u32> {
+    pub const fn as_int(&self) -> Option<&u32> {
         match self {
             Self::Integer(i) => Some(i),
             _ => None,
         }
     }
 
-    pub fn is_int(&self) -> bool {
+    pub const fn is_int(&self) -> bool {
         match self {
             Self::Integer(_) => true,
             _ => false,
@@ -107,14 +107,14 @@ impl ResponseData {
         }
     }
 
-    pub fn as_name(&self) -> Option<&String> {
+    pub const fn as_name(&self) -> Option<&String> {
         match self {
             Self::String(s) => Some(s),
             _ => None,
         }
     }
 
-    pub fn is_name(&self) -> bool {
+    pub const fn is_name(&self) -> bool {
         match self {
             Self::String(_) => true,
             _ => false,
@@ -128,14 +128,14 @@ impl ResponseData {
         }
     }
 
-    pub fn as_bool(&self) -> Option<&Boolean> {
+    pub const fn as_bool(&self) -> Option<&Boolean> {
         match self {
             Self::Bool(b) => Some(b),
             _ => None,
         }
     }
 
-    pub fn is_bool(&self) -> bool {
+    pub const fn is_bool(&self) -> bool {
         match self {
             Self::Bool(_) => true,
             _ => false,
@@ -149,14 +149,14 @@ impl ResponseData {
         }
     }
 
-    pub fn as_command_names(&self) -> Option<&Vec<CommandName>> {
+    pub const fn as_command_names(&self) -> Option<&Vec<CommandName>> {
         match self {
             Self::CommandNames(c) => Some(c),
             _ => None,
         }
     }
 
-    pub fn is_command_names(&self) -> bool {
+    pub const fn is_command_names(&self) -> bool {
         match self {
             Self::CommandNames(_) => true,
             _ => false,
@@ -170,14 +170,14 @@ impl ResponseData {
         }
     }
 
-    pub fn as_list_vertex(&self) -> Option<&List<Vertex>> {
+    pub const fn as_list_vertex(&self) -> Option<&List<Vertex>> {
         match self {
             Self::ListVertex(l) => Some(l),
             _ => None,
         }
     }
 
-    pub fn is_list_vertex(&self) -> bool {
+    pub const fn is_list_vertex(&self) -> bool {
         match self {
             Self::ListVertex(_) => true,
             _ => false,
@@ -191,14 +191,14 @@ impl ResponseData {
         }
     }
 
-    pub fn as_move(&self) -> Option<&Move> {
+    pub const fn as_move(&self) -> Option<&Move> {
         match self {
             Self::Move(m) => Some(m),
             _ => None,
         }
     }
 
-    pub fn is_move(&self) -> bool {
+    pub const fn is_move(&self) -> bool {
         match self {
             Self::Move(_) => true,
             _ => false,
@@ -212,14 +212,14 @@ impl ResponseData {
         }
     }
 
-    pub fn as_score(&self) -> Option<&Score> {
+    pub const fn as_score(&self) -> Option<&Score> {
         match self {
             Self::Score(s) => Some(s),
             _ => None,
         }
     }
 
-    pub fn is_score(&self) -> bool {
+    pub const fn is_score(&self) -> bool {
         match self {
             Self::Score(_) => true,
             _ => false,
@@ -233,14 +233,14 @@ impl ResponseData {
         }
     }
     
-    pub fn as_vertex_lists(&self) -> Option<&Vec<List<Vertex>>> {
+    pub const fn as_vertex_lists(&self) -> Option<&Vec<List<Vertex>>> {
         match self {
             Self::VertexLists(l) => Some(l),
             _ => None,
         }
     }
 
-    pub fn is_vertex_lists(&self) -> bool {
+    pub const fn is_vertex_lists(&self) -> bool {
         match self {
             Self::VertexLists(_) => true,
             _ => false,
@@ -323,67 +323,67 @@ impl FromStr for Response {
 }
 
 impl Response {
-    pub fn mov(mov: Move) -> Self { //TODO: find a better name as move is a rust keyword
+    pub const fn mov(mov: Move) -> Self { //TODO: find a better name as move is a rust keyword
         Self {
             id: None,
             data: Some(ResponseData::Move(mov)),
         }    
     }
 
-    pub fn move_with_id(id: u32, mov: Move) -> Self {
+    pub const fn move_with_id(id: u32, mov: Move) -> Self {
         Self {
             id: Some(id),
             data: Some(ResponseData::Move(mov)),
         }
     }
 
-    pub fn empty() -> Self {
+    pub const fn empty() -> Self {
         Self {
             id: None,
             data: None,
         }
     }
 
-    pub fn empty_with_id(id: u32) -> Self {
+    pub const fn empty_with_id(id: u32) -> Self {
         Self {
             id: Some(id),
             data: None,
         }
     }
 
-    pub fn integer(int: u32) -> Self {
+    pub const fn integer(int: u32) -> Self {
         Self {
             id: None,
             data: Some(ResponseData::Integer(int)),
         }
     }
 
-    pub fn integer_with_id(id: u32, int: u32) -> Self { 
+    pub const fn integer_with_id(id: u32, int: u32) -> Self { 
         Self {
             id: Some(id),
             data: Some(ResponseData::Integer(int)),
         }
     }
     
-    pub fn name(name: String) -> Self {
+    pub const fn name(name: String) -> Self {
         Self {
             id: None,
             data: Some(ResponseData::String(name)),
         }
     }
 
-    pub fn name_with_id(id: u32, name: String) -> Self {
+    pub const fn name_with_id(id: u32, name: String) -> Self {
         Self {
             id: Some(id),
             data: Some(ResponseData::String(name)),
         }
     }
 
-    pub fn version(version: String) -> Self {
+    pub const fn version(version: String) -> Self {
         Self::name(version)
     }
 
-    pub fn version_with_id(id: u32, version: String) -> Self {
+    pub const fn version_with_id(id: u32, version: String) -> Self {
         Self::name_with_id(id, version)
     }
 
@@ -395,77 +395,77 @@ impl Response {
         }
     }
 
-    pub fn bool(boolean: Boolean) -> Self {
+    pub const fn bool(boolean: Boolean) -> Self {
         Self {
             id: None,
             data: Some(ResponseData::Bool(boolean)),
         }
     }
  
-    pub fn bool_with_id(id: u32, boolean: Boolean) -> Self {
+    pub const fn bool_with_id(id: u32, boolean: Boolean) -> Self {
         Self {
             id: Some(id),
             data: Some(ResponseData::Bool(boolean)),
         }
     }
 
-    pub fn command_names(commands: Vec<CommandName>) -> Self {
+    pub const fn command_names(commands: Vec<CommandName>) -> Self {
         Self {
             id: None,
             data: Some(ResponseData::CommandNames(commands)),
         }
     }
     
-    pub fn command_names_with_id(id: u32, commands: Vec<CommandName>) -> Self {
+    pub const fn command_names_with_id(id: u32, commands: Vec<CommandName>) -> Self {
         Self {
             id: Some(id),
             data: Some(ResponseData::CommandNames(commands)),
         }
     }
 
-    pub fn list_vertex(vertices: List<Vertex>) -> Self {
+    pub const fn list_vertex(vertices: List<Vertex>) -> Self {
         Self {
             id: None,
             data: Some(ResponseData::ListVertex(vertices)),
         }
     }
 
-    pub fn list_vertex_with_id(id: u32, vertices: List<Vertex>) -> Self {
+    pub const fn list_vertex_with_id(id: u32, vertices: List<Vertex>) -> Self {
         Self {
             id: Some(id),
             data: Some(ResponseData::ListVertex(vertices)),
         }
     }
 
-    pub fn score(score: Score) -> Self {
+    pub const fn score(score: Score) -> Self {
         Self {
             id: None,
             data: Some(ResponseData::Score(score)),
         }
     }
 
-    pub fn score_with_id(id: u32, score: Score) -> Self {
+    pub const fn score_with_id(id: u32, score: Score) -> Self {
         Self {
             id: Some(id),
             data: Some(ResponseData::Score(score)),
         }
     }
 
-    pub fn vertex_lists(list: Vec<List<Vertex>>) -> Self {
+    pub const fn vertex_lists(list: Vec<List<Vertex>>) -> Self {
         Self {
             id: None,
             data: Some(ResponseData::VertexLists(list)),
         }
     }
 
-    pub fn vertex_lists_with_id(id: u32, list: Vec<List<Vertex>>) -> Self {
+    pub const fn vertex_lists_with_id(id: u32, list: Vec<List<Vertex>>) -> Self {
         Self {
             id: Some(id),
             data: Some(ResponseData::VertexLists(list)),
         }
     }
 
-    pub fn id(&self) -> &Option<u32> {
+    pub const fn id(&self) -> &Option<u32> {
         &self.id
     }
 
@@ -473,7 +473,7 @@ impl Response {
         &mut self.id
     }
 
-    pub fn data(&self) -> &Option<ResponseData> {
+    pub const fn data(&self) -> &Option<ResponseData> {
         &self.data
     }
     

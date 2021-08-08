@@ -43,7 +43,7 @@ impl Display for Args {
 }
 
 impl Args {
-    pub fn int(i: u32) -> Self {
+    pub const fn int(i: u32) -> Self {
         Self::Int(i)
     }
 
@@ -54,14 +54,14 @@ impl Args {
         }
     }
 
-    pub fn as_int(&self) -> Option<&u32> {
+    pub const fn as_int(&self) -> Option<&u32> {
         match self {
             Self::Int(i) => Some(i),
             _ => None,
         }
     }
 
-    pub fn float(f: f32) -> Self {
+    pub const fn float(f: f32) -> Self {
         Self::Float(f)
     }
 
@@ -72,14 +72,14 @@ impl Args {
         }
     }
 
-    pub fn as_float(&self) -> Option<&f32> {
+    pub const fn as_float(&self) -> Option<&f32> {
         match self {
             Self::Float(f) => Some(f),
             _ => None,
         }
     }
 
-    pub fn string(s: String) -> Self {
+    pub const fn string(s: String) -> Self {
         Self::String(s)
     }
 
@@ -90,14 +90,14 @@ impl Args {
         }
     }
 
-    pub fn as_string(&self) -> Option<&String> {
+    pub const fn as_string(&self) -> Option<&String> {
         match self {
             Self::String(s) => Some(s),
             _ => None,
         }
     }
 
-    pub fn collection(c: Collection) -> Self {
+    pub const fn collection(c: Collection) -> Self {
         Self::Collection(c)
     }
 
@@ -108,14 +108,14 @@ impl Args {
         }
     }
 
-    pub fn as_collection(&self) -> Option<&Collection> {
+    pub const fn as_collection(&self) -> Option<&Collection> {
         match self {
             Self::Collection(c) => Some(c),
             _ => None,
         }
     }
 
-    pub fn list_vertex(l: List<Vertex>) -> Self {
+    pub const fn list_vertex(l: List<Vertex>) -> Self {
         Self::ListVertex(l)
     }
 
@@ -126,14 +126,14 @@ impl Args {
         }
     }
 
-    pub fn as_list_vertex(&self) -> Option<&List<Vertex>> {
+    pub const fn as_list_vertex(&self) -> Option<&List<Vertex>> {
         match self {
             Self::ListVertex(l) => Some(l),
             _ => None,
         }
     }
 
-    pub fn list_move(l: List<Move>) -> Self {
+    pub const fn list_move(l: List<Move>) -> Self {
         Self::ListMove(l)
     }
 
@@ -144,14 +144,14 @@ impl Args {
         }
     }
 
-    pub fn as_list_move(&self) -> Option<&List<Move>> {
+    pub const fn as_list_move(&self) -> Option<&List<Move>> {
         match self {
             Self::ListMove(l) => Some(l),
             _ => None,
         }
     }
 
-    pub fn list_string(l: List<String>) -> Self {
+    pub const fn list_string(l: List<String>) -> Self {
         Self::ListString(l)
     }
 
@@ -162,14 +162,14 @@ impl Args {
         }
     }
 
-    pub fn as_list_string(&self) -> Option<&List<String>> {
+    pub const fn as_list_string(&self) -> Option<&List<String>> {
         match self {
             Self::ListString(l) => Some(l),
             _ => None,
         }
     }
 
-    pub fn entity(e: SimpleEntity) -> Self {
+    pub const fn entity(e: SimpleEntity) -> Self {
         Self::Entity(e)
     }
 
@@ -180,14 +180,14 @@ impl Args {
         }
     }
 
-    pub fn as_entity(&self) -> Option<&SimpleEntity> {
+    pub const fn as_entity(&self) -> Option<&SimpleEntity> {
         match self {
             Self::Entity(e) => Some(e),
             _ => None,
         }
     }
 
-    pub fn kata_size(e: RectSize) -> Self {
+    pub const fn kata_size(e: RectSize) -> Self {
         Self::KataSize(e)
     }
 
@@ -198,7 +198,7 @@ impl Args {
         }
     }
 
-    pub fn as_kata_size(&self) -> Option<&RectSize> {
+    pub const fn as_kata_size(&self) -> Option<&RectSize> {
         match self {
             Self::KataSize(e) => Some(e),
             _ => None,
@@ -588,7 +588,7 @@ impl Into<String> for Command {
 }
 
 impl Command {
-    pub fn new(name: CommandName, args: Option<Args>) -> Self {
+    pub const fn new(name: CommandName, args: Option<Args>) -> Self {
         Self {
             id: None,
             name,
@@ -596,7 +596,7 @@ impl Command {
         }
     }
 
-    pub fn with_id(id: u32, name: CommandName, args: Option<Args>) -> Self {
+    pub const fn with_id(id: u32, name: CommandName, args: Option<Args>) -> Self {
         Self {
             id: Some(id),
             name,
@@ -604,7 +604,7 @@ impl Command {
         }
     }
 
-    pub fn id(&self) -> &Option<u32> {
+    pub const fn id(&self) -> &Option<u32> {
         &self.id
     }
 
@@ -612,11 +612,11 @@ impl Command {
         &mut self.id
     }
 
-    pub fn name(&self) -> CommandName {
+    pub const fn name(&self) -> CommandName {
         self.name
     }
 
-    pub fn args(&self) -> &Option<Args> {
+    pub const fn args(&self) -> &Option<Args> {
         &self.args
     }
 

@@ -37,21 +37,21 @@ impl Answer {
         }
     }
 
-    pub fn is_response(&self) -> bool {
+    pub const fn is_response(&self) -> bool {
         match self {
             Self::Response(_) => true,
             _ => false,
         }
     }
 
-    pub fn is_failure(&self) -> bool {
+    pub const fn is_failure(&self) -> bool {
         match self {
             Self::Failure(_) => true,
             _ => false,
         }
     }
 
-    pub fn is_info(&self) -> bool {
+    pub const fn is_info(&self) -> bool {
         match self {
             Self::Info(_) => true,
             _ => false,

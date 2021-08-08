@@ -183,7 +183,7 @@ impl core::cmp::PartialEq<String> for Vertex {
 }
 
 impl Vertex {
-    pub fn to_tuple(&self) -> Option<(u8, u8)> {
+    pub const fn to_tuple(&self) -> Option<(u8, u8)> {
         match self {
             Self::Coord(x, y) => Some((*x, *y)),
             Self::Pass => None,
@@ -467,7 +467,7 @@ impl Collection {
         Self::default()
     }
 
-    pub fn from_vec(vec: Vec<SimpleEntity>) -> Self {
+    pub const fn from_vec(vec: Vec<SimpleEntity>) -> Self {
         Self(vec)
     }
 
@@ -483,7 +483,7 @@ impl Collection {
         self.0
     }
 
-    pub fn inner(&self) -> &Vec<SimpleEntity> {
+    pub const fn inner(&self) -> &Vec<SimpleEntity> {
         &self.0
     }
 

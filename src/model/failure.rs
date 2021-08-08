@@ -51,21 +51,21 @@ impl FromStr for Failure {
 }
 
 impl Failure {
-    pub fn new(message: String) -> Self {
+    pub const fn new(message: String) -> Self {
         Self {
             id: None,
             message,
         }
     }
 
-    pub fn new_with_id(id: u32, message: String) -> Self {
+    pub const fn new_with_id(id: u32, message: String) -> Self {
         Self {
             id: Some(id),
             message,
         }
     }
 
-    pub fn id(&self) -> &Option<u32> {
+    pub const fn id(&self) -> &Option<u32> {
         &self.id
     }
 
@@ -73,7 +73,7 @@ impl Failure {
         &mut self.id
     }
 
-    pub fn message(&self) -> &String {
+    pub const fn message(&self) -> &String {
         &self.message
     }
 

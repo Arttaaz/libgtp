@@ -9,7 +9,7 @@ pub struct Info {
 }
 
 impl Info {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             explored_moves: vec![],
             ownership: vec![],
