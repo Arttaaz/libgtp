@@ -48,4 +48,8 @@ impl Controller {
             Err(crate::model::ParseError::WrongAnswerFormat)
         }
     }
+
+    pub fn discard_info(&mut self) {
+        self.engine.discard_info();
+    }
 }

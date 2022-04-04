@@ -79,6 +79,11 @@ impl Engine {
     pub fn read_info(&self) -> String {
         self.analyze_line.lock().unwrap().clone()
     }
+
+    pub fn discard_info(&mut self) {
+        let mut line = self.analyze_line.lock().unwrap();
+        *line = "".to_string();
+    }
 }
 
 impl Write for Engine {
