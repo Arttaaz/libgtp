@@ -37,9 +37,15 @@ impl FromStr for Info {
         
         let mut infos: Vec<InfoMove> = Vec::new();
         while let Some(s) = matches.next() {
-            infos.push(s.parse()?);
+            infos.push(match s.parse() {
+                Ok(r) => r,
+                Err(e) => {
+                    log::error!("failed at \"{}\" reason: {:?}", s, e);
+                    return Err(e)
+                }
+            });
         }
-        
+
         let mut vec: Vec<f32> = vec![];
         if !ownership.is_empty() {
             let matches = ownership.split_ascii_whitespace();
@@ -69,6 +75,7 @@ pub struct InfoMove {
     pub order: u16, //ranking of the move, max is 361 so u16 is sufficient
     pub pv: Vec<Vertex>,
     pub pv_visits: Vec<u64>,
+    pub weight: f32,
 }
 
 impl FromStr for InfoMove {
@@ -89,6 +96,7 @@ impl FromStr for InfoMove {
         let mut order: u16 = 0;
         let mut pv: Vec<Vertex> = vec![];
         let mut pv_visits: Vec<u64> = vec![];
+        let mut weight: f32 = 0.0;
         
         let matches = s.split_whitespace();
         let mut matches = matches.peekable();
@@ -145,7 +153,10 @@ impl FromStr for InfoMove {
                     }
                 },
                 "isSymmetryOf" => { matches.next();},
-                _ => return Err(super::ParseError::WrongAlternative),
+                "weight" => {
+                    weight = matches.next().unwrap().parse()?;
+                },
+                s @ _ => log::warn!("\"{}\" not yet handled", s),
             }
         }
 
@@ -165,6 +176,7 @@ impl FromStr for InfoMove {
             order,
             pv,
             pv_visits,
+            weight,
         })
     }
 }
