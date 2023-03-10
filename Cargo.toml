@@ -1,8 +1,10 @@
 [package]
 name = "libgtp"
-version = "0.1.0"
+version = "0.1.2"
 authors = ["Arttaaz <arttaaz@gmail.com>"]
-edition = "2018"
+edition = "2021"
+description = "A library implmenting the gtp protocol"
+license-file = "LICENSE"
 
 [features]
 default = ["controller"]

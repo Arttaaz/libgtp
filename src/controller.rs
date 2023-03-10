@@ -1,5 +1,4 @@
 use std::io::Write;
-use alloc::collections::VecDeque;
 use crate::model::Command;
 use crate::model::Answer;
 use crate::Engine;
@@ -9,8 +8,6 @@ use log::error;
 pub struct Controller {
     /// link to engine
     engine: Engine,
-    /// commands waiting an answer from the engine
-    waiting_for_answer: VecDeque<Command>,
 }
 
 impl Controller {
@@ -25,7 +22,6 @@ impl Controller {
 
         Self {
             engine,
-            waiting_for_answer: VecDeque::new(),
         }
     }
 
